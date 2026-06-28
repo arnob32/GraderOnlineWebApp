@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title> GradeOnline</title>
+  <link rel="stylesheet" href="/static/CSS/theme.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg, #f1f5f9);
+      font-family: 'Segoe UI', sans-serif;
+    }
+    .login-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 40px 36px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      border: 1px solid #e2e8f0;
+    }
+    .login-logo {
+      font-size: 22px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 6px;
+    }
+    .login-sub {
+      font-size: 13px;
+      color: #64748b;
+      margin-bottom: 28px;
+    }
+    .field { margin-bottom: 16px; }
+    .field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: #374151;
+      margin-bottom: 6px;
+      letter-spacing: 0.3px;
+    }
+    .field input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #0f172a;
+      background: #f8fafc;
+      transition: border-color .15s;
+    }
+    .field input:focus {
+      outline: none;
+      border-color: #2563eb;
+      background: #fff;
+    }
+    .btn-login {
+      width: 100%;
+      padding: 12px;
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background .15s;
+    }
+    .btn-login:hover { background: #1d4ed8; }
+    .error-box {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: #b91c1c;
+      margin-bottom: 16px;
+    }
+    .info-box {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 12px;
+      color: #1d4ed8;
+      margin-top: 16px;
+      line-height: 1.6;
+    }
+    .other-login {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+    .other-login a { color: #2563eb; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="login-card">
+    <div class="login-logo">GradeOnline</div>
+    <div class="login-sub">Student Portal — Inspection Copy Access</div>
+
+    {% if error %}
+    <div class="error-box">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST" action="/student/login">
+      <div class="field">
+        <label>Student Number (Mtknr)</label>
+        <input type="text" name="student_code"
+               placeholder="e.g. 1234567"
+               value="{{ student_code or '' }}"
+               required autocomplete="username">
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" name="password"
+               placeholder="Default: your student number"
+               required autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn-login">Sign In</button>
+    </form>
+
+    <div class="info-box">
+      <strong>Default password</strong> is your student number (Mtknr).<br>
+      Contact your teacher if you cannot log in.
+    </div>
+
+    <div class="other-login">
+      Teacher? <a href="/auth/login">Teacher login →</a>
+    </div>
+  </div>
+</body>
+</html>

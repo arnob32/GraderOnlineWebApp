@@ -1,0 +1,130 @@
+{% extends "Student/layout.html" %}
+{% block title %}Result — {{ paper.exam_name }}{% endblock %}
+{% block page_title %}Result Detail{% endblock %}
+{% block extra_css %}
+<style>
+.back-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;font-weight:600;color:#334155;text-decoration:none;margin-bottom:20px}
+.back-btn:hover{background:#f1f5f9}
+.result-card{background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;padding:24px;margin-bottom:20px}
+.result-title{font-size:20px;font-weight:800;color:#0f172a;margin-bottom:4px}
+.result-sub{font-size:13px;color:#64748b;margin-bottom:16px}
+.score-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.score-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px;text-align:center}
+.score-val{font-size:28px;font-weight:800;color:#0f172a;line-height:1}
+.score-lbl{font-size:10px;color:#64748b;margin-top:4px;text-transform:uppercase;letter-spacing:.05em}
+.action-row{display:flex;gap:10px;flex-wrap:wrap}
+.btn{padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none;display:inline-block;border:none;cursor:pointer}
+.btn-purple{background:#7c3aed;color:#fff}
+.btn-blue{background:#2563eb;color:#fff}
+.btn-green{background:#16a34a;color:#fff}
+.feedback-box{background:#fffbeb;border:1px solid #fde047;border-radius:10px;padding:14px 16px;margin-bottom:20px}
+.feedback-lbl{font-size:11px;font-weight:700;color:#854d0e;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
+.feedback-text{font-size:13px;color:#475569}
+.section-lbl{font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px}
+.q-card{background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;margin-bottom:12px;overflow:hidden}
+.q-header{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid #f1f5f9}
+.q-badge{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex-shrink:0}
+.q-badge.full{background:#dcfce7;color:#166534}
+.q-badge.partial{background:#fef9c3;color:#854d0e}
+.q-badge.low{background:#fee2e2;color:#991b1b}
+.q-title{flex:1;font-size:13px;color:#334155;font-weight:500}
+.q-score{font-size:20px;font-weight:800}
+.q-score.full{color:#16a34a}
+.q-score.partial{color:#f59e0b}
+.q-score.low{color:#ef4444}
+.q-body{padding:14px 16px}
+.progress-wrap{margin-bottom:10px}
+.progress-bar{height:7px;background:#e2e8f0;border-radius:100px;overflow:hidden}
+.progress-fill{height:100%;border-radius:100px}
+.pct-lbl{font-size:11px;color:#64748b;margin-bottom:4px}
+.comment-box{background:#f8fafc;border-left:3px solid #94a3b8;border-radius:0 8px 8px 0;padding:10px 14px;font-size:13px;color:#475569;font-style:italic;margin-top:8px}
+.comment-icon{margin-right:4px}
+</style>
+{% endblock %}
+{% block content %}
+
+<a href="/dashboard/student" class="back-btn">← Back to My Exams</a>
+
+<div class="result-card">
+  <div class="result-title">{{ paper.exam_name }}</div>
+  <div class="result-sub">
+    {% if paper.subject_name %}{{ paper.subject_name }}{% if paper.subject_code %} ({{ paper.subject_code }}){% endif %}{% endif %}
+  </div>
+
+  <div class="score-row">
+    <div class="score-box" style="background:#eff6ff;border-color:#bfdbfe">
+      <div class="score-val">{{ paper.score if paper.score is not none else '—' }}</div>
+      <div class="score-lbl">Score</div>
+    </div>
+    <div class="score-box">
+      <div class="score-val">{{ paper.max_score if paper.max_score else '—' }}</div>
+      <div class="score-lbl">Max Score</div>
+    </div>
+    <div class="score-box" style="{% if paper.percentage is not none %}{% if paper.percentage >= 70 %}background:#f0fdf4;border-color:#86efac{% elif paper.percentage >= 40 %}background:#fef9c3;border-color:#fde047{% else %}background:#fee2e2;border-color:#fca5a5{% endif %}{% endif %}">
+      <div class="score-val">{{ paper.percentage|round(1) if paper.percentage is not none else '—' }}{% if paper.percentage is not none %}%{% endif %}</div>
+      <div class="score-lbl">Percentage</div>
+    </div>
+    <div class="score-box">
+      <div class="score-val" style="color:{{ '#16a34a' if paper.grade in ['A','B'] else ('#f59e0b' if paper.grade == 'C' else ('#ef4444' if paper.grade else '#94a3b8')) }}">
+        {{ paper.grade or '—' }}
+      </div>
+      <div class="score-lbl">Grade</div>
+    </div>
+  </div>
+
+  {% if paper.annotated_url %}
+  <div class="action-row">
+    <a href="{{ paper.annotated_url }}" target="_blank" class="btn btn-blue">👁 View Annotated Paper</a>
+    <a href="{{ paper.annotated_url }}" download class="btn btn-green">⬇ Download Paper</a>
+  </div>
+  {% endif %}
+</div>
+
+{% if paper.feedback %}
+<div class="feedback-box">
+  <div class="feedback-lbl">💬 Teacher Feedback</div>
+  <div class="feedback-text">{{ paper.feedback }}</div>
+</div>
+{% endif %}
+
+{% if paper.question_marks %}
+<div class="section-lbl">Question Breakdown — {{ paper.question_marks|length }} Question(s)</div>
+
+{% for qm in paper.question_marks %}
+  {% if qm.max and qm.max > 0 %}
+    {% set pct = (qm.awarded / qm.max * 100)|round(1) %}
+  {% else %}
+    {% set pct = 0 %}
+  {% endif %}
+  {% set cls = 'full' if pct >= 70 else ('partial' if pct >= 40 else 'low') %}
+
+<div class="q-card">
+  <div class="q-header">
+    <div class="q-badge {{ cls }}">Q{{ qm.number }}</div>
+    <div class="q-title">
+      {% if qm.text %}{{ qm.text[:100] }}{% if qm.text|length > 100 %}…{% endif %}
+      {% else %}Question {{ qm.number }}{% endif %}
+    </div>
+    <div class="q-score {{ cls }}">
+      {{ qm.awarded }}<span style="font-size:12px;font-weight:400;color:#94a3b8">/{{ qm.max }}</span>
+    </div>
+  </div>
+  <div class="q-body">
+    <div class="pct-lbl">{{ pct }}% — {{ qm.awarded }} out of {{ qm.max }} marks</div>
+    <div class="progress-bar">
+      <div class="progress-fill" style="width:{{ pct }}%;background:{{ '#16a34a' if pct >= 70 else ('#f59e0b' if pct >= 40 else '#ef4444') }}"></div>
+    </div>
+    {% if qm.comment %}
+    <div class="comment-box"><span class="comment-icon">💬</span>{{ qm.comment }}</div>
+    {% endif %}
+  </div>
+</div>
+{% endfor %}
+
+{% else %}
+<div style="text-align:center;padding:32px;color:#94a3b8;background:#fff;border-radius:10px;border:1px solid #e2e8f0;">
+  No question breakdown available yet.
+</div>
+{% endif %}
+
+{% endblock %}

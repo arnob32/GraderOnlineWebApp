@@ -1,0 +1,19 @@
+version: "3.9"
+
+services:
+  app:
+    build: .
+    container_name: OnlineGrader
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      SECRET_KEY: change-this-secret-key-in-production
+    volumes:
+      - ./WebApplication:/app/WebApplication.db
+      - ./uploaded_papers:/app/uploaded_papers
+      - ./uploaded_exams:/app/uploaded_exams
+      - ./generated_pdfs:/app/generated_pdfs
+      - ./unmatched_pages:/app/unmatched_pages
+      - ./outputs:/app/outputs
+      - ./app/ExamScanner:/app/app/ExamScanner

@@ -1,0 +1,6 @@
+/* admin.css — imports shared theme */
+@import url("theme.css");
+
+/* Admin accent stays blue — no overrides needed */
+/* Add any admin-specific styles below */
+.admin-only { display: block; }

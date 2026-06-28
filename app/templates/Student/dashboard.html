@@ -1,0 +1,95 @@
+{% extends "Student/layout.html" %}
+{% block title %}My Exams{% endblock %}
+{% block page_title %}My Exams{% endblock %}
+{% block content %}
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;">
+  <div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;padding:16px 20px;">
+    <div style="font-size:28px;font-weight:800;color:#0f172a;">{{ papers|length }}</div>
+    <div style="font-size:12px;color:#64748b;margin-top:4px;">Total Exams</div>
+  </div>
+  <div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;padding:16px 20px;">
+    <div style="font-size:28px;font-weight:800;color:#16a34a;">
+      {{ papers|selectattr('status','in',['returned','locked','reviewed'])|list|length }}
+    </div>
+    <div style="font-size:12px;color:#64748b;margin-top:4px;">Results Available</div>
+  </div>
+  <div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;padding:16px 20px;">
+    <div style="font-size:28px;font-weight:800;color:#2563eb;">{{ avg_pct }}%</div>
+    <div style="font-size:12px;color:#64748b;margin-top:4px;">Average Score</div>
+  </div>
+</div>
+
+<div class="card">
+  <div style="padding:16px 20px;border-bottom:1px solid #f1f5f9;font-weight:700;font-size:14px;color:#0f172a;">
+    Exam Results
+  </div>
+  {% if papers %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Exam</th><th>Subject</th><th>Status</th>
+          <th>Score</th><th>Grade</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in papers %}
+        <tr>
+          <td style="font-weight:600;color:#0f172a;">{{ p.exam_name }}</td>
+          <td style="font-size:13px;color:#64748b;">
+            {% if p.subject_name %}{{ p.subject_name }}
+              {% if p.subject_code %}<span style="font-size:11px;color:#94a3b8;">({{ p.subject_code }})</span>{% endif %}
+            {% else %}—{% endif %}
+          </td>
+          <td>
+            {% if p.status in ['returned','locked','reviewed'] %}
+              <span style="background:#f0fdf4;color:#16a34a;border:1px solid #86efac;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;">✓ Graded</span>
+            {% elif p.status == 'marked' %}
+              <span style="background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;">Marked</span>
+            {% else %}
+              <span style="background:#f8fafc;color:#94a3b8;border:1px solid #e2e8f0;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;">Pending</span>
+            {% endif %}
+          </td>
+          <td style="font-weight:700;text-align:center;">
+            {% if p.score is not none and p.max_score %}
+              {{ p.score }}/{{ p.max_score }}
+              {% if p.percentage is not none %}<div style="font-size:11px;color:#64748b;">{{ p.percentage }}%</div>{% endif %}
+            {% else %}—{% endif %}
+          </td>
+          <td style="text-align:center;">
+            {% if p.grade %}
+              <span style="font-size:18px;font-weight:800;color:{{ '#16a34a' if p.grade in ['A','B'] else ('#f59e0b' if p.grade == 'C' else '#ef4444') }};">{{ p.grade }}</span>
+            {% else %}—{% endif %}
+          </td>
+          <td>
+            {% if p.status in ['returned','locked','reviewed'] %}
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+              {# View Results detail page #}
+              <a href="/student/results/{{ p.submission_id }}"
+                 style="font-size:11px;padding:5px 12px;background:#7c3aed;border:1px solid #a78bfa;border-radius:6px;color:#fff;text-decoration:none;font-weight:600;">
+               Results Details
+              </a>
+              {% if p.annotated_url %}
+        
+              {% endif %}
+            </div>
+            {% else %}
+              <span style="font-size:12px;color:#94a3b8;">Not released yet</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state" style="padding:48px 20px;">
+    <div style="font-size:2rem;margin-bottom:12px;">📋</div>
+    <div class="empty-state-text">No exams found</div>
+    <div style="font-size:13px;color:var(--text-muted);margin-top:6px;">
+      Your exam results will appear here once your teacher grades them.
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

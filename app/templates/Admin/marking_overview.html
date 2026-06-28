@@ -1,0 +1,279 @@
+{% extends "Admin/layout.html" %}
+{% block title %}Marking Overview{% endblock %}
+{% block page_title %}Marking Overview{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  
+</div>
+
+<div class="card" style="margin-bottom:16px; padding:14px 20px;">
+  <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end;">
+
+    <div class="form-group" style="margin:0; min-width:180px;">
+      <label class="form-label">Department</label>
+      <select class="form-select" id="dept-filter" onchange="applyFilters()">
+        <option value="">All Departments</option>
+      </select>
+    </div>
+
+    <div class="form-group" style="margin:0; min-width:200px;">
+      <label class="form-label">Exam</label>
+      <select class="form-select" id="exam-filter" onchange="applyFilters()">
+        <option value="">All Exams</option>
+      </select>
+    </div>
+
+    <div class="form-group" style="margin:0; min-width:160px;">
+      <label class="form-label">Status</label>
+      <select class="form-select" id="status-filter" onchange="applyFilters()">
+        <option value="">All Statuses</option>
+     
+        <option value="marked">Marked</option>
+        <option value="returned">Returned</option>
+      </select>
+    </div>
+
+    <div class="form-group" style="margin:0;">
+      <label class="form-label">&nbsp;</label>
+    </div>
+
+    <div class="form-group" style="margin:0; margin-left:auto;">
+      <label class="form-label">&nbsp;</label>
+      <span class="badge badge-muted" id="result-count"
+            style="height:38px;display:flex;align-items:center;padding:0 14px;">
+        Loading…
+      </span>
+    </div>
+
+  </div>
+</div>
+
+<div class="stats-grid" style="margin-bottom:20px;">
+  <div class="stat-card purple">
+    <div class="stat-value" id="stat-total">—</div>
+    <div class="stat-label">Total Submissions</div>
+  </div>
+  <div class="stat-card green">
+    <div class="stat-value" id="stat-marked">—</div>
+    <div class="stat-label">Marked</div>
+  </div>
+  <div class="stat-card blue">
+    <div class="stat-value" id="stat-released">—</div>
+    <div class="stat-label">Released</div>
+  </div>
+  <div class="stat-card amber">
+    <div class="stat-value" id="stat-pending">—</div>
+    <div class="stat-label">Pending</div>
+  </div>
+</div>
+
+<div id="overview-content">
+  <div class="card">
+    <div class="empty-state">
+      <div class="empty-state-text">Loading...</div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let allResults   = [];
+let examsMap     = {};
+
+const statusColor = {
+  marked:           "badge-success",
+  locked:           "badge-purple",
+  returned:         "badge-green",
+  uploaded:         "badge-info",
+  sent_for_marking: "badge-warning",
+};
+
+async function loadOverview() {
+  try {
+    const [summaryRes, examsRes] = await Promise.all([
+      fetch("/marking/summary"),
+      fetch("/admin/exams-api"),
+    ]);
+    const summaryData = await summaryRes.json();
+    const examsData   = await examsRes.json();
+    allResults = summaryData.results || [];
+    for (const e of (examsData.exams || [])) {
+      examsMap[String(e.id)] = e;
+    }
+    populateFilters();
+    applyFilters();
+  } catch(e) {
+    document.getElementById("overview-content").innerHTML = `
+      <div class="card"><div class="empty-state">
+        <div class="empty-state-text">Failed to load. Try refreshing.</div>
+      </div></div>`;
+  }
+}
+
+function populateFilters() {
+  const examSel = document.getElementById("exam-filter");
+  const deptSel = document.getElementById("dept-filter");
+  const examSeen = new Set();
+  const deptSeen = new Set();
+
+  for (const r of allResults) {
+    const eid = String(r.exam_id || "");
+    if (eid && !examSeen.has(eid)) {
+      examSeen.add(eid);
+      const title = examsMap[eid]?.title || `Exam #${eid}`;
+      const o = document.createElement("option");
+      o.value = eid; o.textContent = title;
+      examSel.appendChild(o);
+    }
+  }
+
+  for (const e of Object.values(examsMap)) {
+    const did = String(e.department_id || "");
+    if (did && !deptSeen.has(did)) {
+      deptSeen.add(did);
+      const o = document.createElement("option");
+      o.value = did; o.textContent = e.department_name || `Dept #${did}`;
+      deptSel.appendChild(o);
+    }
+  }
+}
+
+function applyFilters() {
+  const examId = document.getElementById("exam-filter").value;
+  const deptId = document.getElementById("dept-filter").value;
+  const status = document.getElementById("status-filter").value;
+
+  const filtered = allResults.filter(r => {
+    const eid = String(r.exam_id || "");
+    const did = String(examsMap[eid]?.department_id || "");
+    return (!examId || eid === examId) &&
+           (!deptId || did === deptId) &&
+           (!status || (r.status || "") === status);
+  });
+
+  updateStats(filtered);
+  renderTable(filtered);
+  document.getElementById("result-count").textContent =
+    filtered.length + " result" + (filtered.length !== 1 ? "s" : "");
+}
+
+function clearFilters() {
+  ["exam-filter","dept-filter","status-filter"].forEach(
+    id => document.getElementById(id).value = "");
+  applyFilters();
+}
+
+function updateStats(rows) {
+  document.getElementById("stat-total").textContent    = rows.length;
+  document.getElementById("stat-marked").textContent   = rows.filter(r => r.status === "marked").length;
+  document.getElementById("stat-released").textContent = rows.filter(r => r.status === "returned").length;
+  document.getElementById("stat-pending").textContent  = rows.filter(r =>
+    !["marked","locked","returned","reviewed"].includes(r.status)).length;
+}
+
+function renderTable(rows) {
+  const el = document.getElementById("overview-content");
+  if (!rows.length) {
+    el.innerHTML = `<div class="card"><div class="empty-state">
+      <div class="empty-state-text">No submissions found.</div>
+    </div></div>`;
+    return;
+  }
+
+  const byExam = {};
+  for (const r of rows) {
+    const eid = String(r.exam_id || "unknown");
+    if (!byExam[eid]) byExam[eid] = [];
+    byExam[eid].push(r);
+  }
+
+  let html = "";
+  for (const [examId, group] of Object.entries(byExam)) {
+    const exam     = examsMap[examId] || {};
+    const title    = exam.title || `Exam #${examId}`;
+    const deptName = exam.department_name || "";
+    const scores   = group.filter(r => r.percentage != null).map(r => r.percentage);
+    const avg      = scores.length
+      ? (scores.reduce((a,b) => a+b,0)/scores.length).toFixed(1) : "—";
+
+    html += `
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-header">
+          <div>
+            <div class="card-title">${esc(title)}</div>
+            ${deptName
+              ? `<div style="font-size:12px;color:var(--text-muted);margin-top:2px;">${esc(deptName)}</div>`
+              : ""}
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+           
+           
+        
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Submission</th>
+                <th>Student</th>
+                <th>Score</th>
+                <th>Grade</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${group.map(r => `
+                <tr>
+                  <td style="font-family:monospace;color:var(--text-muted);">
+                    ${r.submission_id}
+                  </td>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                      <div style="width:26px;height:26px;border-radius:50%;
+                           background:linear-gradient(135deg,var(--primary),#818cf8);
+                           color:#fff;font-size:11px;font-weight:700;
+                           display:flex;align-items:center;justify-content:center;
+                           flex-shrink:0;">
+                        ${r.student_name ? esc(r.student_name[0].toUpperCase()) : "?"}
+                      </div>
+                      <span style="font-weight:600;">
+                        ${esc(r.student_name || "Unknown Student")}
+                      </span>
+                    </div>
+                  </td>
+                  <td style="font-family:monospace;font-weight:600;">
+                    ${r.score != null ? r.score + "/" + r.max_score : "—"}
+                  </td>
+                  <td>
+                    ${r.letter_grade
+                      ? `<span class="grade-pill grade-${r.letter_grade}">${r.letter_grade}</span>`
+                      : "—"}
+                  </td>
+                  <td>
+                    <span class="badge ${statusColor[r.status] || "badge-info"}">
+                      ${r.status || "—"}
+                    </span>
+                  </td>
+                </tr>`).join("")}
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+  }
+  el.innerHTML = html;
+}
+
+function esc(s) {
+  return String(s == null ? "" : s)
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+loadOverview();
+</script>
+{% endblock %}

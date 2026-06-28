@@ -1,0 +1,141 @@
+{% extends "Admin/layout.html" %}
+{% block title %}Enrollments{% endblock %}
+{% block page_title %}Enrollment Approvals{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <div class="page-header-title">Enrollment Approvals</div>
+    <div class="page-header-sub">
+      {{ pending|length }} pending · {{ approved|length }} approved · {{ rejected|length }} rejected
+    </div>
+  </div>
+</div>
+
+<!-- Pending -->
+{% if pending %}
+<div class="card" style="margin-bottom:20px; border-left:3px solid #f59e0b;">
+  <div class="card-header">
+    <div class="card-title">⏳ Pending Approval</div>
+    <span class="badge badge-warning">{{ pending|length }}</span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Student</th>
+          <th>Subject</th>
+          <th>Semester</th>
+          <th>Requested</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for e in pending %}
+        <tr>
+          <td>
+            <div style="font-weight:600; color:var(--text-primary);">
+              {{ e.student.name if e.student else "Student #" ~ e.student_id }}
+            </div>
+            <div style="font-size:12px; color:var(--text-muted);">
+              {{ e.student.student_code if e.student else "" }}
+            </div>
+          </td>
+          <td>
+            <div style="font-weight:600;">
+              {{ e.subject.name if e.subject else "Subject #" ~ e.subject_id }}
+            </div>
+            <div style="font-size:12px; color:var(--text-muted);">
+              {{ e.subject.code if e.subject else "" }}
+            </div>
+          </td>
+          <td>Sem {{ e.semester }}</td>
+          <td style="font-size:13px; color:var(--text-muted);">
+            {{ e.requested_at.strftime("%d %b %Y") if e.requested_at else "—" }}
+          </td>
+          <td>
+            <div style="display:flex; gap:8px;">
+              <form method="post" action="/admin/enrollments/{{ e.id }}/approve">
+                <button type="submit" class="btn btn-success btn-sm">✓ Approve</button>
+              </form>
+              <form method="post" action="/admin/enrollments/{{ e.id }}/reject"
+                    data-confirm="Reject this enrollment request?">
+                <button type="submit" class="btn btn-danger btn-sm">✗ Reject</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="card" style="margin-bottom:20px;">
+  <div class="empty-state" style="padding:32px;">
+    <div class="empty-state-icon">✅</div>
+    <div class="empty-state-text">No pending enrollment requests.</div>
+  </div>
+</div>
+{% endif %}
+
+<!-- Approved -->
+{% if approved %}
+<div class="card" style="margin-bottom:20px;">
+  <div class="card-header">
+    <div class="card-title">✓ Approved Enrollments</div>
+    <span class="badge badge-success">{{ approved|length }}</span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Student</th><th>Subject</th><th>Semester</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        {% for e in approved %}
+        <tr>
+          <td style="font-weight:600;">
+            {{ e.student.name if e.student else "Student #" ~ e.student_id }}
+          </td>
+          <td>{{ e.subject.name if e.subject else "Subject #" ~ e.subject_id }}</td>
+          <td>Sem {{ e.semester }}</td>
+          <td><span class="badge badge-success">Approved</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+<!-- Rejected -->
+{% if rejected %}
+<div class="card">
+  <div class="card-header">
+    <div class="card-title">✗ Rejected</div>
+    <span class="badge badge-danger">{{ rejected|length }}</span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Student</th><th>Subject</th><th>Semester</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        {% for e in rejected %}
+        <tr>
+          <td style="font-weight:600;">
+            {{ e.student.name if e.student else "Student #" ~ e.student_id }}
+          </td>
+          <td>{{ e.subject.name if e.subject else "Subject #" ~ e.subject_id }}</td>
+          <td>Sem {{ e.semester }}</td>
+          <td><span class="badge badge-danger">Rejected</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}

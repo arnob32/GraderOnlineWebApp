@@ -1,0 +1,85 @@
+{% extends "Teacher/layout.html" %}
+{% block title %}Uploaded Exam Papers{% endblock %}
+{% block page_title %}Uploaded Exam Papers{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/CSS/uploaded_exams.css">
+<style>
+.back-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 13px;
+  border:1px solid var(--border,#e2e8f0);border-radius:8px;background:var(--surface,#fff);
+  color:var(--text-muted,#64748b);font-size:12px;font-weight:600;text-decoration:none;
+  margin-bottom:12px;transition:all .14s}
+.back-btn:hover{border-color:var(--primary,#2563eb);color:var(--primary,#2563eb)}
+.back-btn svg{width:13px;height:13px}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<a href="/dashboard/teacher" class="back-btn">
+  <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+    <polyline points="15 18 9 12 15 6"/>
+  </svg>
+  Back to Dashboard
+</a>
+
+<div class="page-hdr">
+  <div>
+  </div>
+</div>
+
+<div class="stat-strip">
+  <div class="sc"><div class="sc-lbl">Total Files</div><div class="sc-val" id="statTotal">—</div></div>
+  <div class="sc"><div class="sc-lbl">Pending / Marking</div><div class="sc-val" id="statPending">—</div></div>
+  <div class="sc"><div class="sc-lbl">Graded</div><div class="sc-val" id="statGraded">—</div></div>
+  <div class="sc"><div class="sc-lbl">Released</div><div class="sc-val" id="statReleased">—</div></div>
+  <div class="sc"><div class="sc-lbl">Total Size</div><div class="sc-val" id="statSize">—</div></div>
+</div>
+
+<div class="filter-bar">
+  <div class="search-wrap">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+    <input id="searchInput" type="text" placeholder="Search student, exam…" oninput="applyFilters()"/>
+  </div>
+  <select class="filter-select" id="subjectFilter" onchange="applyFilters()">
+    <option value="">All Subjects</option>
+  </select>
+  <select class="filter-select" id="semesterFilter" onchange="applyFilters()">
+    <option value="">All Semesters</option>
+  </select>
+  <button class="filter-tab active" onclick="setStatusTab(this,'')">All</button>
+  <button class="filter-tab" onclick="setStatusTab(this,'uploaded')">Uploaded</button>
+  <button class="filter-tab" onclick="setStatusTab(this,'marked')">Marked</button>
+  <button class="filter-tab" onclick="setStatusTab(this,'returned')">Released</button>
+  <div class="filter-spacer"></div>
+</div>
+
+<div class="section-hdr">
+  <h2>Papers by Subject &amp; Semester</h2>
+  <span class="table-count" id="tableCount">Loading…</span>
+</div>
+
+<div id="loadingState" class="state-box">
+  <div class="spinner"></div>
+  <div class="state-sub">Loading exam papers…</div>
+</div>
+<div id="errorState" class="state-box" style="display:none">
+  <div class="state-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+  <div class="state-title">Failed to load files</div>
+  <div class="state-sub" id="errorMsg">Server connection error.</div>
+  <button class="retry-btn" onclick="loadFiles()">Retry</button>
+</div>
+<div id="emptyState" class="state-box" style="display:none">
+  <div class="state-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-6l-2-2H5a2 2 0 0 0-2 2z"/></svg></div>
+  <div class="state-title">No papers found</div>
+  <div class="state-sub">Upload exam papers first via the Upload Papers page.</div>
+  <button class="retry-btn" onclick="loadFiles()">Refresh</button>
+</div>
+
+<div id="groupedView"></div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/JS/uploaded_exams.js"></script>
+{% endblock %}

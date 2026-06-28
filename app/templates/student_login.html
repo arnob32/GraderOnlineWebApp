@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Student Login — GradeOnline</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/static/CSS/auth.css">
+</head>
+<body>
+<nav class="navbar">
+  <a href="/" class="nav-brand"><div class="nav-brand-name">GradeOnline<sup>*</sup></div></a>
+</nav>
+<div class="deco b1"></div><div class="deco b2"></div><div class="deco b3"></div>
+<div class="deco b4"></div><div class="deco b5"></div><div class="deco b6"></div>
+<div class="page">
+<div class="card">
+  <div class="logo">
+    <div class="logo-name">GradeOnline<sup>*</sup></div>
+    <div style="font-size:13px;color:#64748b;margin-top:4px;">Student Portal</div>
+
+  </div>
+  {% if error %}<div class="alert alert-e">⚠ {{ error }}</div>{% endif %}
+
+  <div class="mode-row">
+  </div>
+
+  <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;
+              padding:10px 14px;font-size:12px;color:#166534;margin-bottom:16px;">
+    Login with your <strong>Mtknr</strong> as both username and password.
+  </div>
+
+  <form method="post" action="/student/login">
+    <div class="fld">
+      <label>Mtknr (Student ID)</label>
+      <input class="inp" type="text" name="student_code"
+             placeholder="e.g. 7200001" required>
+    </div>
+    <div class="fld">
+      <label>Password</label>
+      <div class="iw">
+        <input class="inp" type="password" name="password" id="sPwd"
+               placeholder="Your Mtknr" required style="padding-right:42px">
+        <button type="button" class="eye" onclick="togglePwd('sPwd',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <button type="submit" class="submit-btn">View Results </button>
+  </form>
+
+  <div class="form-foot" style="margin-top:16px;text-align:center;">
+    Don't have an account? <a href="/student/signup">Create account </a><br>
+  </div>
+</div>
+</div>
+<footer class="footer"><span class="foot-copy">© 2026 GradeOnline</span></footer>
+<script src="/static/JS/auth.js"></script>
+</body>
+</html>

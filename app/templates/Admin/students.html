@@ -1,0 +1,84 @@
+{% extends "Admin/layout.html" %}
+{% block title %}Students{% endblock %}
+{% block page_title %}Students{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+  
+  </div>
+</div>
+
+<div style="margin-bottom:16px;">
+  <input type="text" id="studentSearch"
+         placeholder="Search by name, Mtknr or email…"
+         oninput="filterStudents()"
+         style="width:100%; max-width:400px; padding:9px 14px;
+                border:1.5px solid var(--border); border-radius:8px;
+                font-size:13px; background:var(--surface);">
+</div>
+
+<div class="card">
+  {% if students %}
+  <div class="table-wrap">
+    <table id="studentTable">
+      <thead>
+        <tr>
+          <th>Id</th>
+          <th>Mtknr</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Department</th>
+          <th>Exams</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in students %}
+        <tr class="student-row"
+            data-search="{{ s.student_code }} {{ s.first_name }} {{ s.last_name }} {{ s.email }}">
+          <td style="color:var(--text-muted); font-size:12px;">{{ loop.index }}</td>
+          <td style="font-family:monospace; font-weight:700; color:var(--text-primary);">
+            {{ s.student_code }}
+          </td>
+          <td>
+            <div style="font-weight:600;">{{ s.first_name }} {{ s.last_name }}</div>
+          </td>
+          <td style="font-size:12px; color:var(--text-muted);">{{ s.email }}</td>
+          <td style="font-size:12px;">
+            {{ s.department.name if s.department else "—" }}
+          </td>
+          <td style="text-align:center;">
+            {% set sub_count = s.submissions|length if s.submissions else 0 %}
+            {% if sub_count > 0 %}
+              <span class="badge badge-success">{{ sub_count }} exam{{ 's' if sub_count != 1 }}</span>
+            {% else %}
+              <span style="color:var(--text-muted); font-size:12px;">none</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-state-icon">🎓</div>
+    <div class="empty-state-text">No students yet</div>
+    <div style="font-size:13px; color:var(--text-muted); margin-top:6px;">
+      Students are created automatically when a teacher uploads a
+      <strong>Teilnehmerliste</strong> Excel file during exam creation.
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+function filterStudents() {
+  const q = document.getElementById('studentSearch').value.toLowerCase();
+  document.querySelectorAll('.student-row').forEach(row => {
+    const text = row.dataset.search.toLowerCase();
+    row.style.display = text.includes(q) ? '' : 'none';
+  });
+}
+</script>
+{% endblock %}

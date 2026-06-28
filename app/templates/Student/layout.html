@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Student{% endblock %} — GradeOnline</title>
+  <link rel="stylesheet" href="/static/css/theme.css">
+  <link rel="stylesheet" href="/static/css/admin.css">
+  <style>
+    .layout { display: block; min-height: 100vh; }
+    .main-content {
+      margin-left: var(--sidebar-w);
+      margin-top: var(--topbar-h);
+      padding: 24px;
+      min-height: calc(100vh - var(--topbar-h));
+    }
+    @media (max-width: 768px) {
+      .main-content { margin-left: 0; padding: 16px; }
+    }
+  </style>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <a href="/dashboard/student" class="logo-mark">
+        <div class="logo-text">GradeOnline</div>
+      </a>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="/dashboard/student" class="nav-item">📋 My Exams</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-badge">
+        <div class="user-avatar">
+          {{ student.first_name[0]|upper if student and student.first_name else "S" }}
+        </div>
+        <div class="user-info">
+          <div class="user-name">
+            {{ student.first_name ~ ' ' ~ student.last_name if student else "Student" }}
+          </div>
+          <div style="font-size:11px; color:var(--text-muted);">
+            {{ student.student_code if student else "" }}
+          </div>
+        </div>
+      </div>
+      <a href="/student/logout"
+         style="display:block; margin-top:10px; font-size:12px;
+                color:var(--text-muted); text-decoration:none; padding:6px 8px;
+                border-radius:6px; text-align:center; background:var(--surface-2);">
+        Sign out
+      </a>
+    </div>
+  </aside>
+
+  <header class="topbar">
+    <div class="topbar-left">
+      <h1 class="page-title">{% block page_title %}Dashboard{% endblock %}</h1>
+    </div>
+    <div class="topbar-right">
+      <span style="font-size:13px; color:var(--text-muted);">
+        {{ student.first_name if student else "Student" }}
+      </span>
+    </div>
+  </header>
+
+  <main class="main-content">{% block content %}{% endblock %}</main>
+</div>
+<script src="/static/js/utils.js"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

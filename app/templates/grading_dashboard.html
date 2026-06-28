@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grade — {{ student_name }}</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink-1:#0f172a;--ink-2:#334155;--ink-3:#64748b;--ink-4:#94a3b8;
+  --border:#e2e8f0;--surface:#fff;--bg:#f8fafc;
+  --primary:#2563eb;--green:#16a34a;--red:#dc2626;--amber:#d97706;
+  --r8:8px;--r12:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink-1);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:52px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:10px;flex-shrink:0;z-index:100}
+.tb-logo{font-weight:800;font-size:14px;display:flex;align-items:center;gap:6px}
+.tb-mark{width:28px;height:28px;background:var(--primary);color:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800}
+.tb-div{width:1px;height:20px;background:var(--border)}
+.tbtn{padding:6px 12px;border-radius:var(--r8);font-size:12px;font-weight:600;color:var(--ink-2);text-decoration:none;background:var(--bg);border:1px solid var(--border);cursor:pointer;font-family:inherit}
+.tbtn:hover{background:#f1f5f9}
+.spacer{flex:1}
+.paper-info{font-size:12px;color:var(--ink-3)}
+.paper-info strong{color:var(--ink-1)}
+.body{flex:1;display:flex;overflow:hidden}
+.pdf-pane{flex:1;display:flex;flex-direction:column;border-right:1px solid var(--border);min-width:0;position:relative}
+.toolbar{height:44px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 12px;gap:6px;flex-shrink:0}
+.anno-bar{height:38px;background:#fafafa;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 12px;gap:6px;flex-shrink:0}
+.atool{padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--ink-2);user-select:none}
+.atool.on{background:var(--primary);color:#fff;border-color:var(--primary)}
+.cpick{width:18px;height:18px;border-radius:50%;cursor:pointer;border:2px solid transparent;flex-shrink:0}
+.cpick.sel{border-color:var(--ink-1);transform:scale(1.2)}
+.size-sel{font-size:11px;padding:3px 6px;border:1px solid var(--border);border-radius:5px;background:var(--surface);font-family:inherit}
+.sep{width:1px;height:20px;background:var(--border);margin:0 2px}
+.pnav-btn{width:26px;height:26px;border:1px solid var(--border);border-radius:5px;background:var(--surface);cursor:pointer;font-size:15px;font-family:inherit;line-height:1}
+.pnav-btn:disabled{opacity:.4;cursor:not-allowed}
+.pnav-lbl{font-size:11px;font-family:'DM Mono',monospace;min-width:52px;text-align:center;color:var(--ink-2)}
+.zoom-group{display:flex;align-items:center;gap:4px}
+.zoom-lbl{font-size:11px;color:var(--ink-3)}
+.zoom-btn{width:24px;height:24px;border:1px solid var(--border);border-radius:5px;background:var(--surface);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center}
+.zoom-pct{font-size:11px;font-family:'DM Mono',monospace;min-width:36px;text-align:center}
+.zoom-reset{font-size:10px;padding:3px 7px;border:1px solid var(--border);border-radius:5px;background:var(--surface);cursor:pointer;font-family:inherit;color:var(--ink-3)}
+.vtog{display:flex;border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.vb{padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;border:none;background:var(--surface);color:var(--ink-3);font-family:inherit}
+.vb.on{background:var(--primary);color:#fff}
+.pdf-wrap{flex:1;overflow:auto;background:#c8cdd4;position:relative;display:flex;align-items:flex-start;justify-content:center;padding:16px}
+.canvas-container{position:relative;box-shadow:0 4px 24px rgba(0,0,0,.25)}
+#pdfCanvas{display:block}
+#annotationCanvas{position:absolute;top:0;left:0}
+.focus-spotlight{position:absolute;background:rgba(0,0,0,.55);pointer-events:none;z-index:10}
+.answer-float-layer{position:absolute;z-index:20;overflow:hidden;box-shadow:0 0 0 3px var(--primary),0 8px 32px rgba(0,0,0,.35);border-radius:3px}
+.grade-pane{width:380px;flex-shrink:0;display:flex;flex-direction:column;background:var(--surface);overflow:hidden}
+.grade-inner{flex:1;overflow-y:auto;padding:16px}
+.student-bar{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+.s-av{width:40px;height:40px;border-radius:10px;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0}
+.s-name{font-weight:700;font-size:14px}
+.s-exam{font-size:11px;color:var(--ink-3);margin-top:2px}
+.score-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+.sc{background:var(--bg);border:1px solid var(--border);border-radius:var(--r8);padding:10px;text-align:center}
+.sc.hi{background:#eff6ff;border-color:#bfdbfe}
+.sc-val{font-size:20px;font-weight:800}
+.sc-lbl{font-size:10px;color:var(--ink-3);margin-top:2px;text-transform:uppercase;letter-spacing:.04em}
+.prog-wrap{margin-bottom:14px}
+.prog-hdr{display:flex;justify-content:space-between;font-size:11px;color:var(--ink-3);margin-bottom:4px}
+.prog-bar{height:6px;background:var(--border);border-radius:100px;overflow:hidden}
+.prog-fill{height:100%;background:var(--primary);border-radius:100px;transition:width .3s}
+.prog-fill.complete{background:var(--green)}
+.sec-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);margin-bottom:8px}
+.qblock{border:1px solid var(--border);border-radius:var(--r8);margin-bottom:8px;overflow:hidden}
+.qblock.done{border-color:#86efac}
+.qblock.active-q{border-color:var(--primary);box-shadow:0 0 0 2px rgba(37,99,235,.12)}
+.qhd{display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;background:var(--bg)}
+.qhd:hover{background:#f1f5f9}
+.qnum{width:26px;height:26px;border-radius:6px;background:var(--border);color:var(--ink-2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0}
+.qnum.done{background:#dcfce7;color:#166534}
+.qnum.active{background:var(--primary);color:#fff}
+.qtxt{flex:1;font-size:12px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qpts{font-size:13px;font-weight:700}
+.qmax{font-size:11px;color:var(--ink-3)}
+.qchv{font-size:10px;color:var(--ink-3);transition:transform .2s}
+.qchv.open{transform:rotate(180deg)}
+.qbody{padding:12px;border-top:1px solid var(--border);background:var(--surface);display:none}
+.step-grid{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px}
+.step-btn{padding:5px 9px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;color:var(--ink-2)}
+.step-btn:hover{background:#eff6ff;border-color:var(--primary);color:var(--primary)}
+.pts-row{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.pts-inp{width:64px;padding:7px 10px;border:1px solid var(--border);border-radius:var(--r8);font-size:13px;font-weight:700;font-family:'DM Mono',monospace;text-align:center;outline:none}
+.pts-inp:focus{border-color:var(--primary)}
+.pts-max{font-size:12px;color:var(--ink-3)}
+.pq{padding:5px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit}
+.pq:hover{background:#f1f5f9}
+.pts-slider{width:100%;margin-bottom:8px;accent-color:var(--primary)}
+.fbta{width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--r8);font-size:12px;font-family:inherit;resize:vertical;outline:none;color:var(--ink-2);background:var(--bg)}
+.fbta:focus{border-color:var(--primary)}
+.chips{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+.chip{padding:3px 8px;border-radius:100px;font-size:10px;font-weight:700;cursor:pointer;border:1px solid transparent}
+.chip-a{background:#dcfce7;color:#166534;border-color:#86efac}
+.chip-a:hover{background:#bbf7d0}
+.chip-s{background:#fee2e2;color:#991b1b;border-color:#fca5a5}
+.chip-s:hover{background:#fecaca}
+.tmpl-lbl{font-size:10px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.overall-sec{margin-top:14px;padding-top:12px;border-top:1px solid var(--border)}
+.overall-lbl{font-size:11px;font-weight:700;color:var(--ink-3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}
+.status-banner{padding:8px 12px;border-radius:var(--r8);font-size:12px;font-weight:600;margin-bottom:12px;display:none}
+.status-banner.show{display:block}
+.status-banner.partial{background:#fef9c3;color:#854d0e;border:1px solid #fde047}
+.status-banner.complete{background:#dcfce7;color:#166534;border:1px solid #86efac}
+.status-banner.sent{background:#dbeafe;color:#1e40af;border:1px solid #93c5fd}
+.grade-footer{padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap}
+.btn-draft{padding:10px 14px;border:1px solid var(--border);border-radius:var(--r8);background:var(--bg);color:var(--ink-2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-finish{flex:1;padding:10px;border:none;border-radius:var(--r8);background:#16a34a;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn-finish:disabled{opacity:.4;cursor:not-allowed;background:var(--border);color:var(--ink-3)}
+/* FIXED: use display:none by default, JS sets display:flex when shown */
+.btn-send{flex:1;padding:10px;border:none;border-radius:var(--r8);background:var(--primary);
+  color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:none;
+  align-items:center;justify-content:center;gap:6px}
+.flag-bar{min-height:0;padding:0 12px;display:flex;flex-wrap:wrap;gap:6px;flex-shrink:0}
+.flag-bar:not(:empty){padding:6px 12px}
+.flag{padding:4px 10px;border-radius:100px;font-size:11px;font-weight:600}
+.flag-w{background:#fef9c3;color:#854d0e;border:1px solid #fde047}
+.pdf-margin-row{display:flex;align-items:flex-start;gap:0}
+.pdf-margin-left,.pdf-margin-right{width:48px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;padding-top:4px;gap:2px}
+.pdf-paper-area{flex:1;min-width:0;display:flex;justify-content:center}
+.margin-q-label{font-size:9px;font-weight:700;padding:3px 6px;border-radius:5px;cursor:pointer;background:#f1f5f9;color:var(--ink-3);text-align:center;width:38px;transition:all .15s}
+.margin-q-label:hover{background:#dbeafe;color:var(--primary)}
+.margin-q-label.active-q-lbl{background:var(--primary);color:#fff}
+.margin-mark{font-size:9px;font-family:'DM Mono',monospace;padding:2px 4px;border-radius:4px;text-align:center;width:38px}
+.margin-mark.graded{background:#dcfce7;color:#166534}
+.margin-mark.pending{background:#f1f5f9;color:var(--ink-3)}
+.margin-mark.active-mark{background:#eff6ff;color:var(--primary)}
+.margin-divider,.margin-divider-r{width:38px;height:1px;background:var(--border);margin:1px 0}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink-1);color:#fff;padding:10px 20px;border-radius:100px;font-size:13px;font-weight:600;opacity:0;transition:all .25s;pointer-events:none;z-index:9999;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.ok{background:var(--green)}
+.toast.err{background:var(--red)}
+.toast.info{background:var(--primary)}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="tb-logo"><div class="tb-mark">EM</div>ExamMark</div>
+  <div class="tb-div"></div>
+  <a href="/uploads/uploaded-exams" class="tbtn">← Papers</a>
+  <div class="tb-div"></div>
+  <strong style="font-size:13px">{{ student_name }}</strong>
+  <span style="font-size:12px;color:var(--ink-3)"> — {{ exam_title }}</span>
+  <div class="spacer"></div>
+  <div class="paper-info">Paper <strong>{{ paper_num }}</strong> / <strong>{{ total_papers }}</strong></div>
+  {% if next_id %}
+  <a href="/uploads/grade-submission/{{ next_id }}?teacher_id={{ teacher_id }}" class="tbtn">Next →</a>
+  {% endif %}
+</div>
+
+<div id="examProgressBanner" style="display:none;background:#eff6ff;border-bottom:1px solid #bfdbfe;padding:8px 20px;font-size:12px;color:var(--ink-2);flex-shrink:0"></div>
+
+<div class="body">
+  <div class="pdf-pane">
+    <div class="toolbar">
+      <div class="vtog">
+        <button class="vb on" id="btnFull" onclick="setView('full')">Full page</button>
+        <button class="vb"    id="btnBox"  onclick="setView('box')">Answer box</button>
+      </div>
+      <div class="sep"></div>
+      <button class="pnav-btn" id="btnPrev" onclick="prevPg()">‹</button>
+      <div class="pnav-lbl" id="pgInd">— / —</div>
+      <button class="pnav-btn" id="btnNext" onclick="nextPg()">›</button>
+      <div class="sep"></div>
+      <div class="zoom-group">
+        <span class="zoom-lbl" id="zoomLbl">Page zoom</span>
+        <button class="zoom-btn" onclick="zoomOut()">−</button>
+        <span class="zoom-pct" id="zoomPct">100%</span>
+        <button class="zoom-btn" onclick="zoomIn()">+</button>
+        <button class="zoom-reset" onclick="zoomReset()">↺</button>
+      </div>
+      <div class="sep"></div>
+      <div class="zoom-group" id="boxNavGroup" style="display:none">
+        <button class="zoom-btn" onclick="prevBox()" title="Previous question box">◀</button>
+        <span class="zoom-lbl" id="boxNavLbl" style="min-width:48px;text-align:center">Box 1</span>
+        <button class="zoom-btn" onclick="nextBox()" title="Next question box">▶</button>
+      </div>
+    </div>
+    <div class="anno-bar">
+      <div class="atool" id="tool-pen"       onclick="selectTool('pen')">✏ Pen</div>
+      <div class="atool" id="tool-highlight" onclick="selectTool('highlight')">🖊 Highlight</div>
+      <div class="sep"></div>
+      <div class="cpick sel" style="background:#ffe94d" data-c="#ffe94d" onclick="setColor(this)"></div>
+      <div class="cpick" style="background:#c8401a" data-c="#c8401a" onclick="setColor(this)"></div>
+      <div class="cpick" style="background:#1a1209" data-c="#1a1209" onclick="setColor(this)"></div>
+      <div class="cpick" style="background:#2d6a2d" data-c="#2d6a2d" onclick="setColor(this)"></div>
+      <div class="cpick" style="background:#2563eb" data-c="#2563eb" onclick="setColor(this)"></div>
+      <div class="cpick" style="background:#7c3aed" data-c="#7c3aed" onclick="setColor(this)"></div>
+      <div class="sep"></div>
+      <select id="penSize" class="size-sel">
+        <option value="2">Thin</option>
+        <option value="4" selected>Normal</option>
+        <option value="8">Thick</option>
+      </select>
+      <div class="spacer"></div>
+      <button class="tbtn" onclick="clearPageAnnotations()" style="font-size:11px">Clear page</button>
+    </div>
+    <div class="flag-bar" id="flagBar"></div>
+    <div class="pdf-wrap" id="pdfWrap">
+      <div class="pdf-margin-row" id="marginRow" style="min-width:100%;justify-content:center">
+        <div class="pdf-margin-left"  id="marginLeft"></div>
+        <div class="pdf-paper-area">
+          <div class="canvas-container" id="canvasContainer">
+            <canvas id="pdfCanvas"></canvas>
+            <canvas id="annotationCanvas"></canvas>
+          </div>
+        </div>
+        <div class="pdf-margin-right" id="marginRight"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grade-pane">
+    <div class="grade-inner">
+      <div class="student-bar">
+        <div class="s-av" id="studentAv">??</div>
+        <div><div class="s-name">{{ student_name }}</div><div class="s-exam">{{ exam_title }}</div></div>
+      </div>
+      <div class="score-grid">
+        <div class="sc"><div class="sc-val" id="dispAw">0</div><div class="sc-lbl">Awarded</div></div>
+        <div class="sc hi"><div class="sc-val" id="dispMax">{{ exam_total_marks if exam_total_marks else '—' }}</div><div class="sc-lbl">Total</div></div>
+        <div class="sc"><div class="sc-val" id="dispPct">—</div><div class="sc-lbl">Score</div></div>
+      </div>
+      <div class="prog-wrap">
+        <div class="prog-hdr"><span>Marking progress</span><span id="progTxt">0 / 0 marked</span></div>
+        <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+      </div>
+      <div class="status-banner" id="statusBanner"></div>
+      <div class="sec-lbl">Questions</div>
+      <div id="qContainer"><div style="text-align:center;padding:24px;color:var(--ink-4);font-size:13px">Loading…</div></div>
+      <div class="overall-sec">
+        <div class="overall-lbl">Overall feedback</div>
+        <textarea class="fbta" id="overallFb" rows="3" placeholder="General comment…"></textarea>
+      </div>
+    </div>
+    <div class="grade-footer">
+      <button class="btn-draft" onclick="saveDraft()">Save draft</button>
+      <button class="btn-finish" id="btnFinish" onclick="finishMarking()" disabled>✓ Finish Marking</button>
+      <a class="btn-send" id="btnSend" href="/student-directory" style="display:none;text-decoration:none;text-align:center">Go to Student Directory →</a>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+const SUB_ID       = {{ submission_id }};
+const TEACHER_ID   = {{ teacher_id }};
+const EXAM_ID      = {{ exam_id }};
+const MAX_SCORE    = {{ exam_total_marks if exam_total_marks else 'null' }};
+const PDF_URL      = "{{ file_url }}";
+const STUDENT_NAME = "{{ student_name }}";
+</script>
+<script>
+// Clear stale localStorage annotations for fresh (never-graded) submissions
+{% if submission_status is defined and submission_status == 'uploaded' %}
+localStorage.removeItem('anno_{{ submission_id }}');
+{% endif %}
+</script>
+<script src="/static/JS/grading_dashboard.js?v=1781111799"></script>
+</body>
+</html>

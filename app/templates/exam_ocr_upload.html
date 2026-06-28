@@ -1,0 +1,360 @@
+{% extends "Teacher/layout.html" %}
+{% block title %}Upload Exam Papers{% endblock %}
+{% block page_title %}Upload Exam Papers{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/exam_ocr_upload.css">
+{% endblock %}
+{% block content %}
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="lo-msg">Processing papers…</div>
+  <div class="lo-sub" id="loSub">Running OCR on each page…</div>
+</div>
+<div class="page-header">
+  <div>
+    <h1>Upload exam papers</h1>
+    <p>Select an exam, drop scanned papers, and let OCR do the rest.</p>
+  </div>
+  <span class="ml-badge" id="mlStatusBadge">
+    <span class="ml-dot"></span>ML OCR
+  </span>
+</div>
+<div class="grid">
+  <div>
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-hd-ico ic-dark">
+          <svg fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <span class="card-hd-title">Select exam</span>
+      </div>
+      <div class="card-bd">
+        <div class="cascade-pills">
+          <span class="cpill active" id="cp1">Semester</span>
+          <span class="cpill-sep">›</span>
+          <span class="cpill" id="cp2">Subject</span>
+          <span class="cpill-sep">›</span>
+          <span class="cpill" id="cp3">Exam</span>
+        </div>
+
+        <div class="field">
+          <label class="field-lbl">Semester</label>
+          <div class="sel-wrap">
+            <select id="semesterSelect" onchange="filterExams()">
+              <option value="">— choose semester —</option>
+              {% for sem in semesters %}
+              <option value="{{ sem.id }}">{{ sem.name }} {{ sem.year_start or "" }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-lbl">Subject <small>optional</small></label>
+          <div class="sel-wrap">
+            <select id="subjectSelect" onchange="filterExams()">
+              <option value="">— all subjects —</option>
+              {% for subj in subjects %}
+              <option value="{{ subj.id }}"
+                      data-sem="{{ subj.semester_id }}"
+                      data-dept="{{ subj.department_id }}">
+                {{ subj.name }}{% if subj.code %} ({{ subj.code }}){% endif %}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-lbl">Exam <small>required</small></label>
+          <div class="sel-wrap">
+            <select id="examSelect" onchange="onExamSelect()">
+              <option value="">— choose an exam —</option>
+              {% for exam in exams %}
+              <option value="{{ exam.id }}"
+                      data-dept="{{ exam.department_id or '' }}"
+                      data-subject="{{ exam.subject_id or '' }}"
+                      data-sem="{{ exam.semester_id or '' }}">
+                {{ exam.title }}{% if exam.course_code %} · {{ exam.course_code }}{% endif %}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div class="exam-pill" id="examPill">
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
+          <span class="exam-pill-txt" id="examPillText"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card hidden" id="checklistCard">
+      <div class="card-hd">
+        <div class="card-hd-ico ic-teal">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </div>
+        <span class="card-hd-title">Student checklist</span>
+        <span class="card-hd-badge teal" id="checklistBadge">0 / 0</span>
+      </div>
+      <div class="card-bd" style="padding:0;">
+        <div class="checklist-hdr">
+          <span class="checklist-title">Expected students</span>
+          <div class="checklist-stats">
+            <span class="cstat up"   id="cstatUp">0 uploaded</span>
+            <span class="cstat miss" id="cstatMiss">0 missing</span>
+          </div>
+        </div>
+        <div class="student-list" id="studentList">
+          <div style="padding:10px 14px;color:var(--text4);font-size:.78rem;">Loading…</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-hd-ico ic-blue">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+        </div>
+        <span class="card-hd-title">Upload papers</span>
+      </div>
+      <div class="card-bd">
+        <div class="mode-row">
+          <button class="mode-btn active" id="modeFiles" onclick="setMode('files')">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            Individual files
+          </button>
+          <button class="mode-btn" id="modeFolder" onclick="setMode('folder')">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            Entire folder
+          </button>
+        </div>
+        <div class="dropzone" id="dropzone"
+             ondragover="dzDragOver(event)" ondragleave="dzDragLeave()" ondrop="dzDrop(event)"
+             onclick="dzClick()">
+          <div class="dz-icon-wrap">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" width="32" height="32"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+          </div>
+          <div class="dz-title" id="dzTitle">Drop Exam Papers Here</div>
+          <div class="dz-sub">JPG, PNG, WEBP — one image per page</div>
+          <button type="button" class="dz-select-btn" onclick="event.stopPropagation();dzClick()">Select files</button>
+        </div>
+        <input type="file" id="inputFiles" multiple accept=".jpg,.jpeg,.png,.webp,.bmp,.tiff,image/*" style="display:none" onchange="handleInputChange(this)">
+        <input type="file" id="inputFolder" multiple webkitdirectory mozdirectory directory style="display:none" onchange="handleInputChange(this)">
+        <div class="file-list" id="fileList"></div>
+        <button class="btn-upload" id="uploadBtn" disabled onclick="doUpload()">
+          <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+          Upload &amp; Process
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="right-panel">
+    <div class="empty-state" id="emptyState">
+      <span class="es-icon">🖼️</span>
+      <div class="es-title">Select an exam, then upload scanned papers</div>
+      <div class="es-sub">OCR auto-matches each page to a student.<br>Unmatched pages can be assigned manually.</div>
+    </div>
+    <div class="success-banner" id="viewPapersBanner">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#0F6E56" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        <div>
+          <div class="sb-text">Upload complete!</div>
+          <div class="sb-sub">Papers saved and ready to grade.</div>
+        </div>
+      </div>
+      <a href="/uploads/uploaded-exams" class="btn-view">View uploaded papers</a>
+    </div>
+    <div class="hidden" id="dupBannerWrap">
+      <div class="dup-banner">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="flex-shrink:0;color:var(--amber)"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <div style="flex:1;">
+          <div class="dup-title">Duplicate uploads detected</div>
+          <div class="dup-sub">These students already have papers for this exam.</div>
+          <div id="dupList"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card hidden" id="resultsCard">
+      <div class="card-hd">
+        <div class="card-hd-ico ic-teal">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/></svg>
+        </div>
+        <span class="card-hd-title">Upload results</span>
+      </div>
+      <div class="card-bd">
+        <div class="stats-row" id="statsRow"></div>
+        <div class="results-split">
+          <div class="split-card">
+            <div class="split-hd split-hd-green">
+              <div class="split-hd-title">
+                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#27500A" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                Matched
+              </div>
+              <span class="split-count split-count-green" id="matchedCount">0</span>
+            </div>
+            <div class="result-list matched-list" id="resultList"></div>
+          </div>
+          <div class="split-card">
+            <div class="split-hd split-hd-red">
+              <div class="split-hd-title" style="color:#791F1F;">
+                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#791F1F" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                Unmatched
+              </div>
+              <span class="split-count split-count-red" id="unmatchedCount">0</span>
+            </div>
+            <div class="unmatched-mini-list" id="unmatchedList">
+              <div style="padding:14px;text-align:center;font-size:.78rem;color:var(--text4);">No unmatched pages</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="assign-panel hidden" id="assignPanel">
+      <div class="assign-header">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:var(--amber);flex-shrink:0;"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <h3>Unmatched pages — assign manually</h3>
+        <span class="assign-count" id="assignCount">0</span>
+      </div>
+      <div class="auto-assign-banner hidden" id="autoAssignBanner">
+        <p>OCR could not match pages — assign all pages to one student:</p>
+        <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;">
+          <select id="quickAssignSelect" style="padding:7px 10px;border:1px solid var(--border);border-radius:var(--r8);font-size:.78rem;outline:none;"></select>
+          <button class="btn-auto-assign" onclick="quickAssignAll()">Assign all</button>
+        </div>
+      </div>
+      <div class="assign-body" id="assignBody"></div>
+    </div>
+    <div class="card hidden" id="pdfSection">
+      <div class="card-hd">
+        <div class="card-hd-ico ic-dark">
+          <svg fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </div>
+        <span class="card-hd-title">Generate PDFs</span>
+        <span class="pdf-count" id="pdfCountBadge">0 students</span>
+      </div>
+      <div class="card-bd">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+          <button class="btn-gen-all" id="genAllBtn" onclick="generateAllPDFs()">Generate all</button>
+        </div>
+        <div class="pdf-grid" id="pdfGrid"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/exam_ocr_upload.js"></script>
+<script src="/static/JS/exam_upload_patch.js"></script>
+
+<script>
+function filterExams() {
+  var semId  = document.getElementById('semesterSelect').value;
+  var subjId = document.getElementById('subjectSelect').value;
+  var sel    = document.getElementById('examSelect');
+  var opts   = sel.querySelectorAll('option');
+
+  opts.forEach(function(opt) {
+    if (!opt.value) return; 
+    var optSem  = opt.dataset.sem     || '';
+    var optSubj = opt.dataset.subject || '';
+    var show = true;
+    if (semId  && optSem  && optSem  !== semId)  show = false;
+    if (subjId && optSubj && optSubj !== subjId) show = false;
+    opt.style.display = show ? '' : 'none';
+    opt.disabled = !show;
+  });
+
+  var cur = sel.value;
+  if (cur) {
+    var curOpt = sel.querySelector('option[value="' + cur + '"]');
+    if (curOpt && curOpt.disabled) {
+      sel.value = '';
+      onExamSelect();
+    }
+  }
+
+  if (semId) {
+    document.querySelectorAll('#subjectSelect option').forEach(function(opt) {
+      if (!opt.value) return;
+      var optSem = opt.dataset.sem || '';
+      opt.style.display = (!optSem || optSem === semId) ? '' : 'none';
+      opt.disabled = optSem && optSem !== semId;
+    });
+  } else {
+    document.querySelectorAll('#subjectSelect option').forEach(function(opt) {
+      opt.style.display = ''; opt.disabled = false;
+    });
+  }
+}
+
+function onExamSelect() {
+  var sel = document.getElementById('examSelect');
+  var val = sel.value;
+  var opt = sel.options[sel.selectedIndex];
+  var pill    = document.getElementById('examPill');
+  var pillTxt = document.getElementById('examPillText');
+
+  if (typeof _examId !== 'undefined') {
+    _examId   = val;
+    _examName = opt ? opt.textContent.trim() : '';
+  }
+
+  if (val && opt) {
+    if (pill)    { pill.style.display = 'flex'; }
+    if (pillTxt) { pillTxt.textContent = opt.textContent.trim(); }
+    var card = document.getElementById('checklistCard');
+    if (card) card.classList.remove('hidden');
+    var es = document.getElementById('emptyState');
+    if (es) es.classList.add('hidden');
+    // Set cascade pills
+    [1,2,3].forEach(function(i){
+      var el=document.getElementById('cp'+i);
+      if(el){el.classList.toggle('active',i<=3);el.classList.toggle('done',i<3);}
+    });
+    
+    loadChecklist(val);
+  } else {
+    if (pill) pill.style.display = 'none';
+    var card = document.getElementById('checklistCard');
+    if (card) card.classList.add('hidden');
+  }
+  if (typeof updateUploadBtn === 'function') updateUploadBtn();
+}
+
+var _baseShowResults = showResults;
+showResults = function(data) {
+  _baseShowResults(data);
+  var results = data.results || [];
+  var mc = document.getElementById('matchedCount');
+  var uc = document.getElementById('unmatchedCount');
+  var matched   = results.filter(function(r){ return r.status === 'success'; });
+  var unmatched = results.filter(function(r){ return r.status === 'unmatched' || r.status === 'failed'; });
+  if (mc) mc.textContent = matched.length;
+  if (uc) uc.textContent = unmatched.length;
+  var ul = document.getElementById('unmatchedList');
+  if (ul) {
+    if (!unmatched.length) {
+      ul.innerHTML = '<div style="padding:14px;text-align:center;font-size:.78rem;color:var(--text4);">No unmatched pages</div>';
+    } else {
+      ul.innerHTML = unmatched.map(function(r) {
+        var conf = r.confidence ? Math.round(r.confidence * 100) + '%' : '—';
+        return '<div class="um-mini-item">'
+          + '<div class="um-mini-thumb"><svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="#E24B4A" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></div>'
+          + '<div class="um-mini-info"><div class="um-mini-file">P' + r.page_number + ' — ' + esc(r.filename || '') + '</div>'
+          + '<div class="um-mini-ocr">' + (r.extracted_id ? 'OCR: ' + esc(r.extracted_id) : 'No ID detected') + ' · ' + conf + '</div></div>'
+          + '</div>';
+      }).join('');
+    }
+  }
+};
+function esc(s) {
+  return String(s === null || s === undefined ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+</script>
+{% endblock %}

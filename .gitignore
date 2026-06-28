@@ -1,0 +1,13 @@
+﻿.env
+__pycache__/
+*.pyc
+*.pyo
+*.db
+generated_pdfs/
+uploaded_papers/
+uploaded_exams/
+unmatched_pages/
+outputs/
+temp_question_images/
+*.xlsx
+.vscode/

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Teacher{% endblock %} — GradeOnline</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/teacher.css">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<div id="sb-overlay" class="sb-overlay" onclick="closeSidebar()"></div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sb-logo">
+    <div>
+      <div class="sb-logo-text">GradeOnline</div>
+    </div>
+  </div>
+
+  <nav class="sb-nav">
+    <a href="/dashboard/teacher" class="sb-link">Dashboard</a>
+    <a href="/uploads/uploaded-exams" class="sb-link">Exam Papers</a>
+    <a href="/exam-ocr/upload" class="sb-link">Exam Upload</a>
+    <a href="/student-directory" class="sb-link">Student Directory</a>
+  </nav>
+
+  <div class="sb-footer">
+    <a href="/auth/logout" class="sb-signout">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+        <polyline points="16,17 21,12 16,7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      Log out
+    </a>
+  </div>
+</aside>
+
+<header class="topbar">
+  <div class="topbar-left"></div>
+  <div class="topbar-right">
+    <div class="tb-chip">
+      <div class="tb-av">{{ teacher.name[0]|upper if teacher else "T" }}</div>
+      <span class="tb-name">{{ teacher.name if teacher else "Teacher" }}</span>
+    </div>
+  </div>
+</header>
+
+<main class="main-wrap">
+  {% block content %}{% endblock %}
+</main>
+
+<div id="toast-container" style="position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;"></div>
+
+<script>
+  function openSidebar()  {
+    document.getElementById('sidebar').classList.add('open');
+    document.getElementById('sb-overlay').classList.add('open');
+  }
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sb-overlay').classList.remove('open');
+  }
+
+  document.querySelectorAll('.sb-link').forEach(function(a) {
+    if (a.getAttribute('href') === window.location.pathname) a.classList.add('active');
+  });
+
+  function showToast(message, type) {
+    type = type || 'info';
+    var c = document.getElementById('toast-container');
+    var t = document.createElement('div');
+    var icons = { success: '✓', error: '✗', info: 'ℹ' };
+    t.className = 'toast ' + type;
+    t.innerHTML = '<span>' + (icons[type] || 'ℹ') + '</span><span>' + message + '</span>';
+    c.appendChild(t);
+    setTimeout(function() { t.remove(); }, 3500);
+  }
+
+  async function apiFetch(url, options) {
+    options = options || {};
+    try {
+      var res  = await fetch(url, Object.assign({ headers: { 'Content-Type': 'application/json' } }, options));
+      var data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'Request failed');
+      return data;
+    } catch(err) { showToast(err.message, 'error'); throw err; }
+  }
+
+  function formatDate(d) {
+    if (!d) return '—';
+    return new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

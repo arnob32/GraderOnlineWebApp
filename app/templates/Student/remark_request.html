@@ -1,0 +1,38 @@
+{% extends "Student/layout.html" %}
+{% block title %}Request Remark{% endblock %}
+{% block page_title %}Request Remark{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <div class="page-header-title">Request Remark</div>
+    <div class="page-header-sub">Submission #{{ submission.id }}</div>
+  </div>
+</div>
+
+<div class="card" style="max-width:520px;">
+  <div class="card-header" style="margin-bottom:20px;">
+    <div class="card-title">Remark Request Form</div>
+    <span class="badge badge-warning">Submission #{{ submission.id }}</span>
+  </div>
+
+  <form method="post" action="/remark/request">
+    <input type="hidden" name="submission_id" value="{{ submission.id }}">
+    <input type="hidden" name="student_id"    value="{{ submission.student_id }}">
+
+    <div class="form-group">
+      <label class="form-label">Reason for Remark Request</label>
+      <textarea class="form-input" name="reason" rows="5"
+                placeholder="Please explain why you are requesting a remark..."
+                required style="resize:vertical;"></textarea>
+    </div>
+
+    <div style="display:flex; gap:10px; margin-top:8px;">
+      <a href="/dashboard/student" class="btn btn-ghost">Cancel</a>
+      <button type="submit" class="btn btn-primary">Submit Request</button>
+    </div>
+  </form>
+</div>
+
+{% endblock %}

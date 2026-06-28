@@ -1,0 +1,169 @@
+{% extends "Teacher/layout.html" %}
+{% block title %}Teachers{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="stats-grid" style="margin-bottom:24px;">
+  <div class="stat-card blue">
+    <div class="stat-value">{{ subject_count }}</div>
+    <div class="stat-label">My Subjects</div>
+  </div>
+  <div class="stat-card purple">
+    <div class="stat-value">{{ total_students }}</div>
+    <div class="stat-label">Total Students</div>
+  </div>
+  <div class="stat-card amber">
+    <div class="stat-value">{{ pending_submissions }}</div>
+    <div class="stat-label">Pending Papers</div>
+  </div>
+  <div class="stat-card green">
+    <div class="stat-value">{{ graded_count }}</div>
+    <div class="stat-label">Graded Papers</div>
+  </div>
+</div>
+
+<form method="GET" action="/dashboard/teacher" class="filter-bar">
+  <div class="search-box">
+    <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
+         style="color:var(--text4);flex-shrink:0;">
+      <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+    </svg>
+    <input type="text" name="q" value="{{ search_query }}" placeholder="Search student name or code…">
+  </div>
+  <select name="semester_id" class="fsel" onchange="this.form.submit()">
+    <option value="">All Semesters</option>
+    {% for sem in semesters %}
+    <option value="{{ sem.id }}" {% if selected_semester == sem.id %}selected{% endif %}>
+      {{ sem.name if sem.name else (sem.year_start|string + ' – ' + sem.year_end|string) }}
+    </option>
+    {% endfor %}
+  </select>
+  <button type="submit" class="filter-btn">Search</button>
+</form>
+
+<div class="section-header" style="margin-bottom:14px;">
+  <div class="section-title">My Subjects</div>
+  <span style="font-size:12px;color:var(--text3);">
+    {{ subject_data|length }} subject{{ 's' if subject_data|length != 1 else '' }}
+  </span>
+</div>
+
+<div class="subjects">
+
+  {% if not subject_data %}
+  <div class="card">
+    <div class="empty-state">
+      <div class="empty-state-icon">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" width="24" height="24">
+          <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+        </svg>
+      </div>
+      <h3>No subjects assigned</h3>
+      <p class="empty-state-text">Wait to be assigned a subject by Admin.</p>
+    </div>
+  </div>
+  {% endif %}
+
+  {% set palettes = [
+    ('#7F77DD','#EEEDFE','#3C3489'),
+    ('#1D9E75','#E1F5EE','#085041'),
+    ('#D85A30','#FAECE7','#712B13'),
+    ('#D4537E','#FBEAF0','#72243E'),
+    ('#378ADD','#E6F1FB','#0C447C'),
+    ('#BA7517','#FAEEDA','#633806')
+  ] %}
+
+  {% for sd in subject_data %}
+  {% set pal = palettes[loop.index0 % palettes|length] %}
+  {% set accent  = pal[0] %}
+  {% set bg_col  = pal[1] %}
+  {% set txt_col = pal[2] %}
+  {% set total_stu = sd.sem_groups | sum(attribute='count') if sd.sem_groups else 0 %}
+
+  <div class="subj-card" style="border-left:3px solid {{ accent }};border-radius:0 var(--r16) var(--r16) 0;">
+
+    <div class="subj-hdr" onclick="toggleSubject({{ sd.subject.id }}, this)" style="padding:14px 20px;">
+      <div class="subj-hdr-left" style="display:flex;align-items:center;gap:12px;">
+        <div style="width:38px;height:38px;border-radius:var(--r8);flex-shrink:0;
+                    background:{{ bg_col }};display:flex;align-items:center;justify-content:center;
+                    font-family:'Bricolage Grotesque',sans-serif;font-size:13px;font-weight:800;color:{{ txt_col }};">
+          {{ sd.subject.name[:2]|upper }}
+        </div>
+        <div>
+          <div class="subj-name">{{ sd.subject.name }}</div>
+          <div class="subj-meta">
+            {{ total_stu }} student{{ 's' if total_stu != 1 else '' }}
+            {% if sd.subject.code %}&nbsp;·&nbsp;{{ sd.subject.code }}{% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="subj-hdr-right">
+        <span style="font-size:11px;font-weight:700;padding:3px 11px;border-radius:99px;
+                     background:{{ bg_col }};color:{{ txt_col }};white-space:nowrap;
+                     border:1px solid {{ accent }}22;">
+          {{ total_stu }} student{{ 's' if total_stu != 1 else '' }}
+        </span>
+
+        <a href="/api/exams/create-ui?subject_id={{ sd.subject.id }}&subject_name={{ sd.subject.name|urlencode }}&subject_code={{ sd.subject.code }}&subject_semester={{ sd.subject.semester_id or '' }}"
+           onclick="event.stopPropagation()" class="create-btn">
+          + Create Exam
+        </a>
+
+        <span class="toggle-icon" id="icon-{{ sd.subject.id }}" style="display:flex;align-items:center;">
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </span>
+      </div>
+    </div>
+
+    <div class="subj-body" id="body-{{ sd.subject.id }}">
+      {% if sd.sem_groups %}
+        {% for grp in sd.sem_groups %}
+        <div class="sem-section">
+          <div class="sem-label">
+            Semester {{ grp.semester }}
+            <span style="font-weight:400;color:var(--text4);">
+              — {{ grp.count }} student{{ 's' if grp.count != 1 else '' }}
+            </span>
+          </div>
+          <div class="students-grid">
+            {% for s in grp.students %}
+            <div class="stu-card">
+              <div class="stu-av" style="background:{{ bg_col }};color:{{ txt_col }};">
+                {{ s.name[0]|upper }}
+              </div>
+              <div>
+                <div class="stu-name">{{ s.name }}</div>
+                <div class="stu-code">{{ s.student_code }}</div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-subj">No students found for this subject.</div>
+      {% endif %}
+    </div>
+
+  </div>
+  {% endfor %}
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleSubject(id, hdr) {
+  const body = document.getElementById('body-' + id);
+  const icon = document.getElementById('icon-' + id);
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  icon.classList.toggle('open', !isOpen);
+}
+</script>
+{% endblock %}

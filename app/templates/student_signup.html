@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Student Signup — GradeOnline</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/static/CSS/auth.css">
+</head>
+<body>
+<nav class="navbar">
+  <a href="/" class="nav-brand"><div class="nav-brand-name">GradeOnline<sup>*</sup></div></a>
+</nav>
+<div class="deco b1"></div><div class="deco b2"></div><div class="deco b3"></div>
+<div class="deco b4"></div><div class="deco b5"></div><div class="deco b6"></div>
+<div class="page">
+<div class="card">
+  <div class="logo">
+    <div class="logo-name">GradeOnline<sup>*</sup></div>
+    <div style="font-size:13px;color:#64748b;margin-top:4px;">Student Portal</div>
+  </div>
+  {% if error %}<div class="alert alert-e">⚠ {{ error }}</div>{% endif %}
+  {% if success %}<div class="alert alert-s">✓ {{ success }}</div>{% endif %}
+
+  <div class="mode-row">
+  </div>
+
+  <form method="post" action="/auth/student/signup">
+    <div class="grid2">
+      <div class="fld"><label>First name</label>
+        <input class="inp" type="text" name="first_name" placeholder="First name" required></div>
+      <div class="fld"><label>Last name</label>
+        <input class="inp" type="text" name="last_name" placeholder="Last name" required></div>
+    </div>
+    <div class="fld">
+      <label>Email address</label>
+      <input class="inp" type="email" name="email" placeholder="name@university.edu" required>
+    </div>
+    <div class="grid2">
+      <div class="fld"><label>Mtknr</label>
+        <input class="inp" type="text" name="student_code" placeholder="e.g. 7200001" required></div>
+      <div class="fld">
+        <label>Semester</label>
+        <div class="iw">
+          <select class="inp" name="semester_id" required>
+            <option value="">— select —</option>
+            {% for s in semesters %}
+              <option value="{{ s.id }}">{{ s.name }}{% if s.year_start %} {{ s.year_start }}{% endif %}</option>
+            {% endfor %}
+          </select>
+          <span class="sel-arr"><svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+            <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg></span>
+        </div>
+      </div>
+    </div>
+    <div class="fld">
+      <label>Department</label>
+      <div class="iw">
+        <select class="inp" name="department_id" required>
+          <option value="">— select —</option>
+          {% for d in departments %}<option value="{{ d.id }}">{{ d.name }}</option>{% endfor %}
+        </select>
+        <span class="sel-arr"><svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+          <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg></span>
+      </div>
+    </div>
+    <div class="fld">
+      <label>Password</label>
+      <div class="iw">
+        <input class="inp" type="password" name="password" id="sPwd"
+               placeholder="Create a password" required style="padding-right:42px">
+        <button type="button" class="eye" onclick="togglePwd('sPwd',this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <button type="submit" class="submit-btn">Create Account →</button>
+  </form>
+
+  <div class="form-foot" style="margin-top:16px;text-align:center;">
+    Already have an account? <a href="/student/login">Sign in </a>
+  </div>
+</div>
+</div>
+<footer class="footer"><span class="foot-copy">© 2026 GradeOnline</span></footer>
+<script src="/static/JS/auth.js"></script>
+</body>
+</html>

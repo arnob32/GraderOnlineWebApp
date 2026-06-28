@@ -1,0 +1,40 @@
+{% extends "Admin/layout.html" %}
+{% block title %}Administration{% endblock %}
+{% block page_title %}Exam Board: {% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+ 
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card purple">
+    <div class="stat-value">{{ total_departments }}</div>
+    <div class="stat-label">Departments</div>
+  </div>
+  <div class="stat-card blue">
+    <div class="stat-value">{{ total_semesters }}</div>
+    <div class="stat-label">Semesters</div>
+  </div>
+  <div class="stat-card green">
+    <div class="stat-value">{{ total_subjects }}</div>
+    <div class="stat-label">Subjects</div>
+  </div>
+  <div class="stat-card blue">
+    <div class="stat-value">{{ total_teachers }}</div>
+    <div class="stat-label">Teachers</div>
+  </div>
+  <div class="stat-card amber">
+    <div class="stat-value">{{ total_students }}</div>
+    <div class="stat-label">Students</div>
+  </div>
+  <div class="stat-card purple">
+    <div class="stat-value">{{ pending_teachers }}</div>
+    <div class="stat-label">Pending Approvals</div>
+  </div>
+</div>
+
+
+
+{% endblock %}

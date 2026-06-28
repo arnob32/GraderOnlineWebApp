@@ -1,0 +1,678 @@
+{% extends "Admin/layout.html" %}
+{% block title %}Subjects{% endblock %}
+{% block page_title %}Subjects{% endblock %}
+
+{% block extra_css %}
+<style>
+ 
+  .sub-header {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    gap: 14px; flex-wrap: wrap; margin-bottom: 18px;
+  }
+  .sub-header h1 {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 21px; font-weight: 800; color: var(--text, #0f172a);
+    letter-spacing: -0.01em;
+  }
+  .sub-header .sub-sub {
+    font-size: 12.5px; color: var(--text3, #64748b); margin-top: 3px;
+  }
+  .sub-count-chip {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700;
+    padding: 2px 9px; border-radius: 99px; margin-left: 8px; vertical-align: 2px;
+    background: var(--blue-l, #eff6ff); color: var(--blue, #2563eb);
+    border: 1px solid var(--blue-m, #bfdbfe);
+  }
+
+  .sub-stats {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 12px; margin-bottom: 16px;
+  }
+  @media(max-width: 900px) { .sub-stats { grid-template-columns: repeat(2, 1fr); } }
+  .sstat {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--surface, #fff); border: 1px solid var(--border, #e2e8f0);
+    border-radius: var(--r12, 12px); padding: 13px 15px;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .sstat:hover { border-color: var(--blue-m, #bfdbfe); box-shadow: 0 4px 14px rgba(15,23,42,.05); }
+  .sstat-ico {
+    width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .sstat-ico svg { width: 16px; height: 16px; }
+  .sstat-ico.blue   { background: var(--blue-l, #eff6ff);   color: var(--blue, #2563eb); }
+  .sstat-ico.violet { background: var(--violet-l, #f5f3ff); color: var(--violet, #7c3aed); }
+  .sstat-ico.green  { background: #f0fdf4; color: #16a34a; }
+  .sstat-ico.amber  { background: #fffbeb; color: #d97706; }
+  .sstat-val { font-family: 'Bricolage Grotesque', sans-serif; font-size: 20px; font-weight: 800; color: var(--text, #0f172a); line-height: 1.1; }
+  .sstat-lbl { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text4, #94a3b8); margin-top: 2px; }
+
+  .sub-filters {
+    display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap;
+    background: var(--surface, #fff); border: 1px solid var(--border, #e2e8f0);
+    border-radius: var(--r12, 12px); padding: 12px 16px; margin-bottom: 16px;
+  }
+  .sub-filters .fg { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 150px; }
+  .sub-filters .fg-lbl {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .07em; color: var(--text4, #94a3b8);
+  }
+
+  .sub-table-card { padding: 0; overflow: hidden; }
+  .sub-table-hd {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 13px 18px; border-bottom: 1px solid var(--border, #e2e8f0);
+    background: var(--bg, #f8fafc);
+  }
+  .sub-table-hd h2 { font-size: 13px; font-weight: 700; color: var(--text, #0f172a); }
+  .sub-table-hd .hint { font-size: 11px; color: var(--text4, #94a3b8); }
+
+  .sub-table-card table { width: 100%; border-collapse: collapse; }
+  .sub-table-card thead th {
+    padding: 10px 16px; text-align: left;
+    font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .06em; color: var(--text4, #94a3b8);
+    border-bottom: 1px solid var(--border, #e2e8f0);
+    background: var(--surface, #fff);
+  }
+  .sub-table-card tbody tr {
+    border-bottom: 1px solid var(--border, #e2e8f0);
+    transition: background .12s;
+  }
+  .sub-table-card tbody tr:last-child { border-bottom: none; }
+  .sub-table-card tbody tr:hover { background: var(--blue-l, #eff6ff); }
+  .sub-table-card td { padding: 12px 16px; font-size: 13px; color: var(--text2, #334155); vertical-align: middle; }
+
+  .idx-num {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--text4, #94a3b8); font-weight: 600;
+  }
+
+  .subj-cell { display: flex; align-items: center; gap: 10px; }
+  .subj-tile {
+    width: 32px; height: 32px; border-radius: 9px; flex-shrink: 0;
+    background: var(--blue-l, #eff6ff); border: 1px solid var(--blue-m, #bfdbfe);
+    color: var(--blue, #2563eb);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bricolage Grotesque', sans-serif; font-size: 13px; font-weight: 800;
+  }
+  .subj-tile.elective { background: var(--violet-l, #f5f3ff); border-color: var(--violet-m, #ddd6fe); color: var(--violet, #7c3aed); }
+  .subj-name { font-weight: 700; color: var(--text, #0f172a); line-height: 1.25; }
+
+  .code-pill {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600;
+    background: var(--bg, #f8fafc); color: var(--text3, #64748b);
+    border: 1px solid var(--border, #e2e8f0);
+    padding: 2px 8px; border-radius: 6px;
+  }
+
+  .type-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 99px;
+  }
+  .type-badge .dot { width: 6px; height: 6px; border-radius: 50%; }
+  .type-badge.mandatory { background: var(--blue-l, #eff6ff); color: var(--blue, #2563eb); border: 1px solid var(--blue-m, #bfdbfe); }
+  .type-badge.mandatory .dot { background: var(--blue, #2563eb); }
+  .type-badge.elective { background: var(--violet-l, #f5f3ff); color: var(--violet, #7c3aed); border: 1px solid var(--violet-m, #ddd6fe); }
+  .type-badge.elective .dot { background: var(--violet, #7c3aed); }
+
+  .dept-chips { display: flex; flex-wrap: wrap; gap: 4px; max-width: 220px; }
+  .dept-chip {
+    font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 99px;
+    background: var(--bg, #f8fafc); color: var(--text3, #64748b);
+    border: 1px solid var(--border, #e2e8f0); white-space: nowrap;
+  }
+
+  .teacher-chip { display: inline-flex; align-items: center; gap: 7px; }
+  .teacher-av {
+    width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;
+    background: var(--text, #0f172a); color: #fff;
+    font-size: 10px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .teacher-name { font-size: 12.5px; font-weight: 600; color: var(--text2, #334155); }
+
+  .assign-inline { display: flex; gap: 6px; align-items: center; }
+  .assign-inline select {
+    min-width: 130px; padding: 6px 9px; font-size: 12px;
+    border: 1px solid var(--border, #e2e8f0); border-radius: 8px;
+    background: var(--surface, #fff); color: var(--text2, #334155);
+    font-family: inherit; outline: none;
+  }
+  .assign-inline select:focus { border-color: var(--blue, #2563eb); box-shadow: 0 0 0 3px rgba(37,99,235,.08); }
+  .assign-btn {
+    padding: 6px 12px; border: 1px solid var(--blue-m, #bfdbfe); border-radius: 8px;
+    background: var(--blue-l, #eff6ff); color: var(--blue, #2563eb);
+    font-size: 11px; font-weight: 700; cursor: pointer; font-family: inherit;
+    transition: all .13s; white-space: nowrap;
+  }
+  .assign-btn:hover { background: var(--blue, #2563eb); color: #fff; }
+
+  .del-btn {
+    width: 30px; height: 30px; border-radius: 8px;
+    border: 1px solid var(--border, #e2e8f0); background: var(--surface, #fff);
+    color: var(--text4, #94a3b8); cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: all .13s;
+  }
+  .del-btn:hover {
+    background: var(--rose-l, #fff1f2); border-color: var(--rose-m, #fecdd3);
+    color: var(--rose, #e11d48);
+  }
+  .del-btn svg { width: 13px; height: 13px; }
+
+  /* ── EMPTY STATE ── */
+  .sub-empty { text-align: center; padding: 56px 20px; }
+  .sub-empty-ico {
+    width: 52px; height: 52px; border-radius: 14px; margin: 0 auto 14px;
+    background: var(--blue-l, #eff6ff); border: 1px solid var(--blue-m, #bfdbfe);
+    display: flex; align-items: center; justify-content: center; font-size: 22px;
+  }
+  .sub-empty-title { font-size: 14px; font-weight: 700; color: var(--text, #0f172a); margin-bottom: 4px; }
+  .sub-empty-sub { font-size: 12.5px; color: var(--text4, #94a3b8); }
+
+  /* ── MODAL (refined, same behaviour) ── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(15,23,42,0.45); backdrop-filter: blur(3px);
+    z-index: 300; align-items: center; justify-content: center; padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface, #fff); border: 1px solid var(--border, #e2e8f0);
+    border-radius: var(--r16, 16px); padding: 0;
+    width: 100%; max-width: 560px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+    max-height: 90vh; overflow-y: auto;
+    animation: modalIn 0.18s ease;
+  }
+  @keyframes modalIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+  .modal-header {
+    display: flex; align-items: center; gap: 11px;
+    padding: 18px 22px; border-bottom: 1px solid var(--border, #e2e8f0);
+    position: sticky; top: 0; background: var(--surface, #fff); z-index: 2;
+  }
+  .modal-header-ico {
+    width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0;
+    background: var(--blue-l, #eff6ff); border: 1px solid var(--blue-m, #bfdbfe);
+    color: var(--blue, #2563eb);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .modal-header-ico svg { width: 15px; height: 15px; }
+  .modal-title {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 16px; font-weight: 800; color: var(--text, #0f172a); flex: 1;
+  }
+  .modal-title small { display: block; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 11px; font-weight: 500; color: var(--text4, #94a3b8); margin-top: 1px; }
+  .modal-close {
+    width: 28px; height: 28px; border-radius: 7px;
+    border: 1px solid var(--border, #e2e8f0); background: var(--bg, #f8fafc);
+    color: var(--text3, #64748b); cursor: pointer; font-size: 14px;
+    display: flex; align-items: center; justify-content: center; transition: all 0.13s;
+  }
+  .modal-close:hover { background: var(--rose-l, #fff1f2); color: var(--rose, #e11d48); border-color: var(--rose-m, #fecdd3); }
+  .modal-body { padding: 20px 22px; }
+
+  /* ── FORM ── */
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media(max-width:500px){ .form-row { grid-template-columns: 1fr; } }
+  .form-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 14px; }
+  .form-group:last-child { margin-bottom: 0; }
+  .form-label {
+    font-size: 11px; font-weight: 700; color: var(--text3, #64748b);
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .req { color: var(--rose, #e11d48); }
+  .form-input, .form-select {
+    padding: 9px 12px; background: var(--bg, #f8fafc);
+    border: 1px solid var(--border, #e2e8f0); border-radius: var(--r8, 8px);
+    color: var(--text, #0f172a); font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13.5px; outline: none; width: 100%;
+    transition: border-color 0.14s, box-shadow 0.14s, background 0.14s;
+  }
+  .form-input:focus, .form-select:focus {
+    border-color: var(--blue, #2563eb); background: var(--surface, #fff);
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.09);
+  }
+  .form-hint { font-size: 11px; color: var(--text4, #94a3b8); margin-top: 3px; }
+
+  /* ── TYPE TOGGLE ── */
+  .type-toggle { display: flex; border: 1px solid var(--border, #e2e8f0); border-radius: var(--r8, 8px); overflow: hidden; }
+  .type-opt { flex: 1; }
+  .type-opt input { display: none; }
+  .type-opt label {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 9px 10px; font-size: 12px; font-weight: 600; color: var(--text3, #64748b);
+    cursor: pointer; background: var(--bg, #f8fafc);
+    border-right: 1px solid var(--border, #e2e8f0);
+    transition: all 0.13s; user-select: none; white-space: nowrap;
+  }
+  .type-opt:last-child label { border-right: none; }
+  .type-opt label svg { width: 12px; height: 12px; flex-shrink: 0; }
+  .type-opt input[value="false"]:checked + label { background: var(--blue-l, #eff6ff);   color: var(--blue, #2563eb);   font-weight: 700; box-shadow: inset 0 -2px 0 var(--blue, #2563eb); }
+  .type-opt input[value="true"]:checked  + label { background: var(--violet-l, #f5f3ff); color: var(--violet, #7c3aed); font-weight: 700; box-shadow: inset 0 -2px 0 var(--violet, #7c3aed); }
+
+  /* ── DEPT CHECKBOXES ── */
+  .dept-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+    gap: 6px;
+  }
+  .dept-item input { display: none; }
+  .dept-item label {
+    display: flex; align-items: center; gap: 7px;
+    padding: 8px 10px; border-radius: var(--r8, 8px);
+    border: 1px solid var(--border, #e2e8f0); background: var(--bg, #f8fafc);
+    cursor: pointer; font-size: 12.5px; font-weight: 500;
+    color: var(--text2, #334155); transition: all 0.13s; user-select: none;
+  }
+  .dept-item label:hover { border-color: var(--blue-m, #bfdbfe); background: var(--blue-l, #eff6ff); color: var(--blue, #2563eb); }
+  .dept-item input:checked + label {
+    border-color: var(--blue, #2563eb); background: var(--blue-l, #eff6ff);
+    color: var(--blue, #2563eb); font-weight: 700;
+  }
+  .chkbox {
+    width: 14px; height: 14px; border-radius: 4px;
+    border: 1.5px solid var(--border, #e2e8f0); background: var(--surface, #fff);
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    transition: all 0.13s;
+  }
+  .dept-item input:checked + label .chkbox { background: var(--blue, #2563eb); border-color: var(--blue, #2563eb); }
+  .chk-svg { display: none; width: 8px; height: 8px; }
+  .dept-item input:checked + label .chk-svg { display: block; }
+
+  .dept-strip { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .link-btn {
+    font-size: 11px; font-weight: 600; color: var(--blue, #2563eb);
+    background: none; border: none; cursor: pointer;
+    padding: 0; font-family: inherit; text-decoration: underline;
+  }
+  .dept-count {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700;
+    padding: 2px 8px; border-radius: 99px;
+    background: var(--blue-l, #eff6ff); color: var(--blue, #2563eb);
+    border: 1px solid var(--blue-m, #bfdbfe);
+    margin-left: auto;
+  }
+  .dept-count.zero { background: var(--bg, #f8fafc); color: var(--text4, #94a3b8); border-color: var(--border, #e2e8f0); }
+
+  /* ── MODAL FOOTER ── */
+  .modal-footer {
+    display: flex; gap: 9px; justify-content: flex-end;
+    margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border, #e2e8f0);
+  }
+
+  /* ── VALIDATION ── */
+  .val-msg {
+    display: none; font-size: 11px; font-weight: 600;
+    color: var(--rose, #e11d48); margin-top: 5px;
+    align-items: center; gap: 4px;
+  }
+  .val-msg.show { display: flex; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ── PAGE HEADER ── -->
+<div class="sub-header">
+  <div>
+    <h1>Subjects </h1>
+  </div>
+  <button class="btn btn-primary" type="button" onclick="openModal('add-subject-modal')">
+    <svg width="13" height="13" fill="none" viewBox="0 0 24 24"
+         stroke="currentColor" stroke-width="2.5">
+      <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+    </svg>
+    Add Subject
+  </button>
+</div>
+
+<!-- ── STATS STRIP ── -->
+{% set elective_count = subjects | selectattr('is_elective') | list | length %}
+{% set unassigned_count = subjects | rejectattr('teacher') | list | length %}
+<div class="sub-stats">
+  <div class="sstat">
+    <div class="sstat-ico blue">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+      </svg>
+    </div>
+    <div>
+      <div class="sstat-val">{{ subjects|length }}</div>
+      <div class="sstat-lbl">Total Subjects</div>
+    </div>
+  </div>
+  <div class="sstat">
+    <div class="sstat-ico green">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+    </div>
+    <div>
+      <div class="sstat-val">{{ subjects|length - elective_count }}</div>
+      <div class="sstat-lbl">Mandatory</div>
+    </div>
+  </div>
+  <div class="sstat">
+    <div class="sstat-ico violet">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+        <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+      </svg>
+    </div>
+    <div>
+      <div class="sstat-val">{{ elective_count }}</div>
+      <div class="sstat-lbl">Elective</div>
+    </div>
+  </div>
+  <div class="sstat">
+    <div class="sstat-ico amber">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <line x1="17" y1="8" x2="23" y2="8"/>
+      </svg>
+    </div>
+    <div>
+      <div class="sstat-val">{{ unassigned_count }}</div>
+      <div class="sstat-lbl">No Teacher Yet</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── FILTERS ── -->
+<form method="get" action="/admin/subjects" class="sub-filters">
+  <div class="fg">
+    <span class="fg-lbl">Department</span>
+    <select class="form-select" name="dept_id" onchange="this.form.submit()">
+      <option value="">All Departments</option>
+      {% for d in departments %}
+      <option value="{{ d.id }}" {% if sel_dept == d.id %}selected{% endif %}>{{ d.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="fg">
+    <span class="fg-lbl">Semester</span>
+    <select class="form-select" name="sem_id" onchange="this.form.submit()">
+      <option value="">All Semesters</option>
+      {% for s in semesters %}
+      <option value="{{ s.id }}" {% if sel_sem == s.id %}selected{% endif %}>{{ s.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+</form>
+
+<!-- ── TABLE ── -->
+<div class="card sub-table-card">
+  <div class="sub-table-hd">
+    <h2>All Subjects</h2>
+  </div>
+  {% if subjects %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Id</th>
+          <th>Subject</th>
+          <th>Code</th>
+          <th>Type</th>
+          <th>Departments</th>
+          <th>Semester</th>
+          <th>Teacher</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in subjects %}
+        <tr>
+          <td><span class="idx-num">{{ '%02d' % loop.index }}</span></td>
+          <td>
+            <div class="subj-cell">
+              <div class="subj-tile {{ 'elective' if s.is_elective }}">{{ s.name[0]|upper }}</div>
+              <div class="subj-name">{{ s.name }}</div>
+            </div>
+          </td>
+          <td><span class="code-pill">{{ s.code }}</span></td>
+          <td>
+            {% if s.is_elective %}
+            <span class="type-badge elective"><span class="dot"></span>Elective</span>
+            {% else %}
+            <span class="type-badge mandatory"><span class="dot"></span>Mandatory</span>
+            {% endif %}
+          </td>
+          <td>
+            <div class="dept-chips">
+              {% if s.departments %}
+                {% for d in s.departments %}
+                <span class="dept-chip">{{ d.name }}</span>
+                {% endfor %}
+              {% elif s.department %}
+                <span class="dept-chip">{{ s.department.name }}</span>
+              {% else %}
+                <span style="color:var(--text4, #94a3b8);">—</span>
+              {% endif %}
+            </div>
+          </td>
+          <td style="font-size:12px; color:var(--text2, #334155);">
+            {{ s.semester.name if s.semester else '—' }}
+          </td>
+          <td>
+            {% if s.teacher %}
+            <span class="teacher-chip">
+              <span class="teacher-av">{{ s.teacher.name[0]|upper }}</span>
+              <span class="teacher-name">{{ s.teacher.name }}</span>
+            </span>
+            {% else %}
+            <form method="post" action="/admin/subjects/{{ s.id }}/assign" class="assign-inline">
+              <select name="teacher_id">
+                <option value="">— Assign —</option>
+                {% for t in teachers %}
+                <option value="{{ t.id }}">{{ t.name }}</option>
+                {% endfor %}
+              </select>
+              <button type="submit" class="assign-btn">Assign</button>
+            </form>
+            {% endif %}
+          </td>
+          <td>
+            <form method="post" action="/admin/subjects/{{ s.id }}/delete"
+                  onsubmit="return confirm('Delete subject \'{{ s.name }}\'? This cannot be undone.')">
+              <button type="submit" class="del-btn" title="Delete subject">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"/>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                </svg>
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="sub-empty">
+    
+    <div class="sub-empty-title">No subjects yet</div>
+    <div class="sub-empty-sub">Click <b>Add Subject</b></div>
+  </div>
+  {% endif %}
+</div>
+
+
+<div class="modal-overlay" id="add-subject-modal"
+     onclick="if(event.target===this)closeModal('add-subject-modal')">
+  <div class="modal">
+
+    <div class="modal-header">
+      <div class="modal-header-ico">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+        </svg>
+      </div>
+      <div class="modal-title">
+        Add Subject
+        
+      </div>
+      <button class="modal-close" type="button"
+              onclick="closeModal('add-subject-modal')">✕</button>
+    </div>
+
+    <div class="modal-body">
+    <form method="POST" action="/admin/subjects/create"
+          id="subjectForm" onsubmit="return validateForm()">
+
+      <!-- Name + Code -->
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="s-name">Name <span class="req">*</span></label>
+          <input class="form-input" type="text" id="s-name" name="name"
+                 placeholder="e.g. Advanced Mathematics" required maxlength="120">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="s-code">Code <span class="req">*</span></label>
+          <input class="form-input" type="text" id="s-code" name="code"
+                 placeholder="e.g. MATH401" required maxlength="20"
+                 style="font-family:'JetBrains Mono',monospace; text-transform:uppercase;"
+                 oninput="this.value=this.value.toUpperCase()">
+        </div>
+      </div>
+
+      <!-- Semester -->
+      <div class="form-group">
+        <label class="form-label" for="s-sem">Semester <span class="req">*</span></label>
+        <select class="form-select" id="s-sem" name="semester_id" required>
+          <option value="">— Select semester —</option>
+          {% for s in semesters %}
+          <option value="{{ s.id }}">{{ s.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Type toggle -->
+      <div class="form-group">
+        <label class="form-label">Subject Type <span class="req">*</span></label>
+        <div class="type-toggle">
+          <div class="type-opt">
+            <input type="radio" id="t-mandatory" name="is_elective" value="false" checked>
+            <label for="t-mandatory">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+              Mandatory
+            </label>
+          </div>
+          <div class="type-opt">
+            <input type="radio" id="t-elective" name="is_elective" value="true">
+            <label for="t-elective">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              </svg>
+              Elective
+            </label>
+          </div>
+        </div>
+        <span class="form-hint">Mandatory</span>
+      </div>
+
+      <!-- Departments -->
+      <div class="form-group" style="margin-bottom:0;">
+        <div class="dept-strip">
+          <label class="form-label" style="margin:0;">Departments <span class="req">*</span></label>
+        
+          <span class="dept-count zero" id="deptBadge">0 selected</span>
+        </div>
+        <div class="dept-grid" id="deptGrid">
+          {% for d in departments %}
+          <div class="dept-item">
+            <input type="checkbox" id="d-{{ d.id }}"
+                   name="department_ids" value="{{ d.id }}"
+                   onchange="updateCount()">
+            <label for="d-{{ d.id }}">
+              <div class="chkbox">
+                <svg class="chk-svg" fill="none" viewBox="0 0 24 24"
+                     stroke="white" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </div>
+              {{ d.name }}
+            </label>
+          </div>
+          {% else %}
+          <p style="font-size:12px; color:var(--text3, #64748b); grid-column:1/-1;">
+            No departments.
+          </p>
+          {% endfor %}
+        </div>
+        <div class="val-msg" id="dept-err">
+          <svg width="11" height="11" fill="none" viewBox="0 0 24 24"
+               stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          Please select at least one department.
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost"
+                onclick="closeModal('add-subject-modal')">Cancel</button>
+        <button type="submit" class="btn btn-primary">
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24"
+               stroke="currentColor" stroke-width="2.5">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          Save Subject
+        </button>
+      </div>
+
+    </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function openModal(id)  { document.getElementById(id).classList.add('open');    }
+  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModal('add-subject-modal');
+  });
+
+  function updateCount() {
+    const n = document.querySelectorAll('#deptGrid input:checked').length;
+    const b = document.getElementById('deptBadge');
+    b.textContent = n + ' selected';
+    b.classList.toggle('zero', n === 0);
+    if (n > 0) document.getElementById('dept-err').classList.remove('show');
+  }
+  function selectAll() {
+    document.querySelectorAll('#deptGrid input').forEach(c => c.checked = true);
+    updateCount();
+  }
+  function clearAll() {
+    document.querySelectorAll('#deptGrid input').forEach(c => c.checked = false);
+    updateCount();
+  }
+
+  function validateForm() {
+    const n = document.querySelectorAll('#deptGrid input:checked').length;
+    if (n === 0) {
+      document.getElementById('dept-err').classList.add('show');
+      return false;
+    }
+    return true;
+  }
+
+  updateCount();
+</script>
+{% endblock %}

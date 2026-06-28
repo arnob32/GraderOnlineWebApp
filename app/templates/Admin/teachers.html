@@ -1,0 +1,81 @@
+{% extends "Admin/layout.html" %}
+{% block title %}Teachers{% endblock %}
+{% block page_title %}Teachers{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <div class="page-header-title">Teachers</div>
+    <div class="page-header-sub">{{ approved|length }} approved · {{ pending|length }} pending</div>
+  </div>
+</div>
+
+{% if pending %}
+<div class="card" style="margin-bottom:20px; border-color:rgba(245,158,11,0.3);">
+  <div class="card-header">
+    <div class="card-title">⏳ Pending Approval</div>
+    <span class="badge badge-warning">{{ pending|length }}</span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Name</th><th>Email</th><th>Code</th><th>Department</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for t in pending %}
+        <tr>
+          <td style="font-weight:600; color:var(--text-primary);">{{ t.name }}</td>
+          <td>{{ t.email }}</td>
+          <td><span class="badge badge-purple">{{ t.teacher_code }}</span></td>
+          <td>{{ t.department.name if t.department else "—" }}</td>
+          <td style="display:flex; gap:8px;">
+            <form method="post" action="/admin/teachers/{{ t.id }}/approve">
+              <button type="submit" class="btn btn-success btn-sm">✓ Approve</button>
+            </form>
+            <form method="post" action="/admin/teachers/{{ t.id }}/reject"
+                  data-confirm="Reject teacher '{{ t.name }}'?">
+              <button type="submit" class="btn btn-danger btn-sm">✗ Reject</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+<div class="card">
+  <div class="card-header">
+    <div class="card-title">✓ Approved Teachers</div>
+    <span class="badge badge-success">{{ approved|length }}</span>
+  </div>
+  {% if approved %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Name</th><th>Email</th><th>Code</th><th>Department</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        {% for t in approved %}
+        <tr>
+          <td style="font-weight:600; color:var(--text-primary);">{{ t.name }}</td>
+          <td>{{ t.email }}</td>
+          <td><span class="badge badge-purple">{{ t.teacher_code }}</span></td>
+          <td>{{ t.department.name if t.department else "—" }}</td>
+          <td><span class="badge badge-success">Active</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-state-icon">👨‍🏫</div>
+    <div class="empty-state-text">No approved teachers yet.</div>
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}

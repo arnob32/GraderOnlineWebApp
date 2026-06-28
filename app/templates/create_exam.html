@@ -1,0 +1,504 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Exam Paper â€” GradeOnline</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/CSS/create_exam.css">
+</head>
+<body>
+
+<input type="hidden" id="teacherId"      value="{{ teacher_id }}" />
+<input type="hidden" id="departmentId"   value="{{ teacher_department_id }}" />
+<input type="hidden" id="semester"       value="{{ subject_semester }}" />
+<input type="hidden" id="semesterId"     value="{{ subject_semester_id|default('0') }}" />
+<input type="hidden" id="subject"        value="{{ pre_subject_id }}" />
+<input type="hidden" id="courseCode"     value="{{ pre_subject_code }}" />
+<input type="hidden" id="preSubjectName" value="{{ pre_subject_name }}" />
+
+<span id="lp-exam-title"   style="display:none"></span>
+<span id="lp-exam-sub"     style="display:none"></span>
+<span id="lp-subject-name" style="display:none"></span>
+<span id="lp-subject-code" style="display:none"></span>
+<span id="lp-semester"     style="display:none"></span>
+<span id="lp-marks-used"   style="display:none"></span>
+<span id="lp-marks-total"  style="display:none"></span>
+<span id="h-used"          style="display:none"></span>
+<span id="h-total"         style="display:none"></span>
+<span id="h-qcount"        style="display:none"></span>
+<div  id="h-progress"      style="display:none"></div>
+
+<header class="ce-topbar">
+  <div class="ce-topbar-left">
+    <a href="/dashboard/teacher" class="ce-back-btn">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      Dashboard
+    </a>
+    <div class="ce-divider"></div>
+    <span class="ce-topbar-title">Create Exam Paper</span>
+  </div>
+  <div class="ce-topbar-right">
+    <div class="ce-user">
+    </div>
+  </div>
+</header>
+
+<div class="exam-shell">
+
+  <aside class="lpanel">
+    <div class="lp-meta">
+      <div class="lp-meta-label">Exam Metadata</div>
+      <div class="lp-meta-title" id="lp-exam-title2">Untitled Exam</div>
+      <div class="lp-meta-sub"   id="lp-exam-sub2">Fill in the title above</div>
+    </div>
+    <div class="lp-pills">
+      <div class="lp-pill">
+        <div class="lp-pill-ico">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+          </svg>
+        </div>
+        <div class="lp-pill-body">
+          <div class="lp-pill-lbl">Subject</div>
+          <div class="lp-pill-val" id="lp-subject-name2">â€”</div>
+        </div>
+        <span class="lp-pill-badge" id="lp-subject-code2">â€”</span>
+      </div>
+      <div class="lp-pill">
+        <div class="lp-pill-ico" style="background:#e1f5ee">
+          <svg fill="none" viewBox="0 0 24 24" stroke="#0f6e56" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8"  y1="2" x2="8"  y2="6"/>
+            <line x1="3"  y1="10" x2="21" y2="10"/>
+          </svg>
+        </div>
+        <div class="lp-pill-body">
+          <div class="lp-pill-lbl">Semester</div>
+          <div class="lp-pill-val" id="lp-semester2">â€”</div>
+        </div>
+      </div>
+    </div>
+    <div class="lp-nav"></div>
+    <div class="lp-marks-input">
+      <label class="lp-marks-label" for="totalMarks">Total Marks</label>
+      <input class="lp-marks-field" id="totalMarks" type="number"
+             placeholder="e.g. 100" min="1" oninput="updateBar()">
+      <div class="lp-marks-hint">
+        Used: <span id="lp-marks-used2">0</span> / <span id="lp-marks-total2">â€”</span>
+      </div>
+    </div>
+
+    <div id="lp-student-info" style="display:none; margin:12px 10px; background:#e1f5ee;
+         border:1.5px solid #9fe1cb; border-radius:10px; padding:12px 14px;">
+      <div style="font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase;
+                  color:#0f6e56; margin-bottom:4px;">Students Loaded</div>
+      <div style="font-size:22px; font-weight:800; color:#085041;" id="lp-student-count">0</div>
+      <div style="font-size:11px; color:#0f6e56; margin-top:2px;">from Teilnehmerliste</div>
+    </div>
+
+    <div class="template-card" onclick="showTemplateToast()">
+      <div class="template-card-inner">
+        <div class="template-card-top">
+          <span class="template-card-ico">ðŸ§©</span>
+          <span class="template-card-badge">Coming Soon</span>
+        </div>
+        <div class="template-card-title">Exam Templates</div>
+        <div class="template-card-desc">Pre-built question structures in the next release.</div>
+      </div>
+    </div>
+    <div class="lp-health" id="summary">
+      <div class="lp-health-title">Exam Details</div>
+      <div class="lp-health-row">
+        <span class="lp-health-key">Total Marks</span>
+        <span class="lp-health-val"><span id="h-used2">0</span> / <span id="h-total2">â€”</span></span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="h-progress2" style="width:0%"></div></div>
+      <div class="lp-health-row">
+        <span class="lp-health-key">Questions</span>
+        <span class="lp-health-val"><span id="h-qcount2">0</span> items</span>
+      </div>
+    </div>
+  </aside>
+
+  <main class="exam-main">
+
+    <div class="exam-meta-inputs">
+      <label class="emi-label" for="examTitle">Exam Title *</label>
+      <input class="emi-input" id="examTitle" type="text"
+             placeholder="e.g. Final Exam â€” Advanced Database Systems"
+             autocomplete="off" oninput="updateBar()">
+    </div>
+
+    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+         STUDENT LIST SECTION (Teilnehmerliste Excel Upload)
+    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+    <div class="section-block" id="student-list-section">
+      <div class="section-block-hd open" onclick="toggleSection(this)">
+        <div class="sbh-ico">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </div>
+        <span class="sbh-title">Student List: </span>
+        <span id="student-count-badge" style="
+          background:#0f6e56; color:#fff; font-size:10px; font-weight:700;
+          padding:2px 10px; border-radius:20px; margin-left:8px; display:none;">
+          0 students
+        </span>
+        <div class="sbh-chv">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </div>
+      </div>
+      <div class="section-block-body open">
+
+        <div style="margin-bottom:14px; font-size:13px; color:#5f5e5a; line-height:1.6;
+                    background:#fafaf7; border:1px solid #e8e6df; border-radius:8px; padding:12px 14px;">
+          Upload the Excel file from the examination office.<br>
+       
+        </div>
+
+        <div id="excelDropZone" onclick="document.getElementById('studentListFile').click()"
+             style="display:flex; flex-direction:column; align-items:center; justify-content:center;
+                    border:2px dashed #cecbf6; border-radius:12px; padding:32px 20px;
+                    cursor:pointer; transition:all .2s; background:#fbfbfe;
+                    margin-bottom:14px;">
+          <svg width="40" height="40" fill="none" viewBox="0 0 24 24"
+               stroke="#534ab7" stroke-width="1.5" style="margin-bottom:10px;">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="12" y1="11" x2="12" y2="17"/>
+            <polyline points="9 14 12 11 15 14"/>
+          </svg>
+          <div style="font-size:13px; font-weight:700; color:#3c3489; margin-bottom:4px;">
+            Please Upload the Students List:
+          </div>
+          <div style="font-size:11px; color:#b4b2a9;">.xlsx Â· .xls</div>
+          <input type="file" id="studentListFile" accept=".xlsx,.xls"
+                 style="display:none;" onchange="onExcelSelected(event)">
+        </div>
+
+        <div id="excelPreview" style="display:none;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+            <div style="font-size:12px; font-weight:700; color:#2c2c2a;">
+              âœ… <span id="excelStudentCount">0</span> students found in file
+            </div>
+            <button type="button" onclick="clearExcel()"
+                    style="font-size:11px; color:#993556; background:none; border:none;
+                           cursor:pointer; padding:2px 8px; border-radius:4px;">
+              âœ• Remove file
+            </button>
+          </div>
+          <div style="max-height:240px; overflow-y:auto; border:1px solid #e8e6df;
+                      border-radius:8px; font-size:12px;">
+            <table style="width:100%; border-collapse:collapse;">
+              <thead style="background:#f5f4ef; position:sticky; top:0;">
+                <tr>
+                  <th style="padding:8px 12px; text-align:left; font-weight:700; color:#5f5e5a;">#</th>
+                  <th style="padding:8px 12px; text-align:left; font-weight:700; color:#5f5e5a;">Mtknr</th>
+                  <th style="padding:8px 12px; text-align:left; font-weight:700; color:#5f5e5a;">Name</th>
+                  <th style="padding:8px 12px; text-align:left; font-weight:700; color:#5f5e5a;">Email</th>
+                </tr>
+              </thead>
+              <tbody id="excelStudentRows"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="excelError" style="display:none; color:#993556; font-size:12px;
+                                     background:#fbeaf0; border:1px solid #f4c0d1;
+                                     border-radius:6px; padding:10px 14px; margin-top:10px;"></div>
+      </div>
+    </div>
+    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+
+    <div class="section-block" id="instructions">
+      <div class="section-block-hd open" onclick="toggleSection(this)">
+        <div class="sbh-ico">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+          </svg>
+        </div>
+        <span class="sbh-title">Cover Page Instructions</span>
+        <div class="sbh-chv">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </div>
+      </div>
+      <div class="section-block-body open">
+        <textarea class="instr-ta" id="coverRules"
+          placeholder="Please provide instructions for your exam:&#10;e.g. Answer all questions. No calculators permitted."></textarea>
+      </div>
+    </div>
+
+    <div class="q-list" id="questionsContainer"></div>
+
+    <div id="emptyQ" style="text-align:center;padding:48px 20px;background:#fff;
+         border:1px dashed #d8d5cb;border-radius:16px;margin-bottom:20px;">
+      <div style="font-size:2.4rem;margin-bottom:12px;opacity:.3;">ðŸ“„</div>
+      <div style="font-size:.90rem;font-weight:700;color:#5f5e5a;">No questions yet</div>
+      <div style="font-size:.78rem;color:#b4b2a9;margin-top:4px;">
+        Click the <strong>+</strong> button below to add your first question.
+      </div>
+    </div>
+
+    <button type="button" class="add-q-btn" onclick="addQuestion()">+</button>
+    <div class="add-q-label">Insert Next Question</div>
+
+    <div class="preview-canvas" id="previewCanvas">
+      <div class="preview-hd">
+        <h3>Preview Canvas</h3>
+        <div class="preview-status">
+          <div class="preview-dot"></div>
+          <span id="previewStatusText">No preview loaded yet</span>
+        </div>
+      </div>
+      <div class="preview-body">
+        <iframe id="previewFrame" title="Exam Preview"></iframe>
+      </div>
+      <div class="preview-foot">
+        <button type="button" class="btn-ghost" onclick="hidePreview()">Hide Preview</button>
+        <button type="button" class="btn-ghost" onclick="previewExam()">Refresh</button>
+        <a id="previewDL" class="btn-primary" href="#" download>Download PDF</a>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div class="action-bar">
+  <div class="ab-actions">
+    <button type="button" class="ab-preview" id="previewBtn" onclick="previewExam()">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/>
+        <circle cx="12" cy="12" r="3"/>
+      </svg>
+      Preview
+    </button>
+    <button type="button" class="ab-generate" id="generateBtn" onclick="generateExam()">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      Generate PDF
+    </button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="/static/JS/create_exam.js?v=2"></script>
+<script>
+// â”€â”€ Left panel sync â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+const _baseUpdateBar = updateBar;
+updateBar = function() {
+  _baseUpdateBar();
+  const cards    = document.querySelectorAll('.qcard');
+  const totalRaw = parseInt(document.getElementById('totalMarks')?.value) || 0;
+  const title    = document.getElementById('examTitle')?.value.trim() || 'Untitled Exam';
+  let used = 0;
+  cards.forEach(c => { used += parseInt(c.querySelector('.question-marks')?.value) || 0; });
+  const _s = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+  _s('lp-exam-title2',  title);
+  _s('lp-exam-sub2',    totalRaw ? totalRaw + ' marks total' : 'Set total marks');
+  _s('lp-marks-used2',  used);
+  _s('lp-marks-total2', totalRaw || 'â€”');
+  _s('h-used2',         used);
+  _s('h-total2',        totalRaw || 'â€”');
+  _s('h-qcount2',       cards.length);
+  _s('barQCount',       cards.length + ' question' + (cards.length !== 1 ? 's' : ''));
+  _s('barMarks',        used + ' / ' + (totalRaw || 'â€”') + ' marks');
+  const pct = totalRaw ? Math.min(100, Math.round(used / totalRaw * 100)) : 0;
+  const p = document.getElementById('h-progress2'); if (p) p.style.width = pct + '%';
+  const sn = document.getElementById('preSubjectName')?.value || '';
+  const sc = document.getElementById('courseCode')?.value     || '';
+  const ss = document.getElementById('semester')?.value       || '';
+  _s('lp-subject-name2', sn ? decodeURIComponent(sn) : 'â€”');
+  _s('lp-subject-code2', sc || 'â€”');
+  _s('lp-semester2',     ss || 'â€”');
+};
+window.addEventListener('load', () => updateBar());
+
+// â”€â”€ KEY FIX: store Excel file in JS variable, not in DOM â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// The drop zone innerHTML gets recreated after file selection which destroys
+// the file input element. Storing the File object in a variable solves this.
+let _selectedExcelFile = null;
+
+// Setup drop zone events
+window.addEventListener('load', function() {
+  const dz = document.getElementById('excelDropZone');
+  if (!dz) return;
+  dz.addEventListener('dragover', e => {
+    e.preventDefault();
+    dz.style.background   = '#eeedfe';
+    dz.style.borderColor  = '#534ab7';
+  });
+  dz.addEventListener('dragleave', () => {
+    dz.style.background  = '#fbfbfe';
+    dz.style.borderColor = '#cecbf6';
+  });
+  dz.addEventListener('drop', e => {
+    e.preventDefault();
+    dz.style.background  = '#fbfbfe';
+    dz.style.borderColor = '#cecbf6';
+    const file = e.dataTransfer.files[0];
+    if (file) loadExcelFile(file);
+  });
+});
+
+function onExcelSelected(event) {
+  const file = event.target.files[0];
+  if (file) loadExcelFile(file);
+}
+
+async function loadExcelFile(file) {
+  // Store in variable â€” survives DOM changes
+  _selectedExcelFile = file;
+  console.log('[Excel] File stored in variable:', file.name, file.size, 'bytes');
+
+  const errEl = document.getElementById('excelError');
+  if (errEl) errEl.style.display = 'none';
+
+  const fd = new FormData();
+  fd.append('file', file);
+
+  try {
+    const res  = await fetch('/api/exams/preview-excel', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (!res.ok) {
+      if (errEl) { errEl.textContent = data.detail || 'Failed to parse Excel'; errEl.style.display = 'block'; }
+      _selectedExcelFile = null;
+      return;
+    }
+    renderExcelPreview(data.students, file.name);
+  } catch(e) {
+    if (errEl) { errEl.textContent = 'Network error: ' + e.message; errEl.style.display = 'block'; }
+    _selectedExcelFile = null;
+  }
+}
+
+function renderExcelPreview(students, fileName) {
+  // Update badge
+  const badge = document.getElementById('student-count-badge');
+  if (badge) { badge.textContent = students.length + ' students'; badge.style.display = 'inline'; }
+
+  // Update left panel
+  const lpInfo = document.getElementById('lp-student-info');
+  if (lpInfo) lpInfo.style.display = 'block';
+  const lpCount = document.getElementById('lp-student-count');
+  if (lpCount) lpCount.textContent = students.length;
+
+  // Show preview table
+  const countEl = document.getElementById('excelStudentCount');
+  if (countEl) countEl.textContent = students.length;
+  const preview = document.getElementById('excelPreview');
+  if (preview) preview.style.display = 'block';
+
+  // Update drop zone to show success â€” NO file input inside anymore
+  // File is safe in _selectedExcelFile variable
+  const dz = document.getElementById('excelDropZone');
+  if (dz) {
+    dz.onclick = null;
+    dz.style.borderStyle = 'solid';
+    dz.style.borderColor = '#9fe1cb';
+    dz.style.background  = '#e1f5ee';
+    dz.innerHTML = `
+      <svg width="32" height="32" fill="none" viewBox="0 0 24 24"
+           stroke="#0f6e56" stroke-width="1.5" style="margin-bottom:8px;">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <polyline points="9 11 12 14 15 11"/>
+      </svg>
+      <div style="font-size:13px; font-weight:700; color:#085041;">${fileName}</div>
+      <div style="font-size:11px; color:#0f6e56; margin-top:2px;">
+        ${students.length} students ready âœ“
+      </div>
+    `;
+  }
+
+  // Render table
+  const tbody = document.getElementById('excelStudentRows');
+  if (tbody) {
+    tbody.innerHTML = students.map((s, i) => `
+      <tr style="border-top:1px solid #f0efe9; background:${i%2===0?'#fff':'#fafaf7'}">
+        <td style="padding:7px 12px; color:#b4b2a9; font-size:11px;">${i+1}</td>
+        <td style="padding:7px 12px; font-family:monospace; font-weight:700; color:#2c2c2a;">${s.student_code}</td>
+        <td style="padding:7px 12px; font-weight:600;">${s.name}</td>
+        <td style="padding:7px 12px; color:#5f5e5a; font-size:11px;">${s.email}</td>
+      </tr>`).join('');
+  }
+}
+
+function clearExcel() {
+  _selectedExcelFile = null;
+  const preview = document.getElementById('excelPreview');
+  if (preview) preview.style.display = 'none';
+  const tbody = document.getElementById('excelStudentRows');
+  if (tbody) tbody.innerHTML = '';
+  const badge = document.getElementById('student-count-badge');
+  if (badge) badge.style.display = 'none';
+  const lpInfo = document.getElementById('lp-student-info');
+  if (lpInfo) lpInfo.style.display = 'none';
+
+  const dz = document.getElementById('excelDropZone');
+  if (dz) {
+    dz.style.borderStyle = 'dashed';
+    dz.style.borderColor = '#cecbf6';
+    dz.style.background  = '#fbfbfe';
+    dz.innerHTML = `
+      <svg width="40" height="40" fill="none" viewBox="0 0 24 24"
+           stroke="#534ab7" stroke-width="1.5" style="margin-bottom:10px;">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="12" y1="11" x2="12" y2="17"/>
+        <polyline points="9 14 12 11 15 14"/>
+      </svg>
+      <div style="font-size:13px; font-weight:700; color:#3c3489; margin-bottom:4px;">
+        Drop Teilnehmerliste here or click to browse
+      </div>
+      <div style="font-size:11px; color:#b4b2a9;">.xlsx Â· .xls</div>
+      <input type="file" id="studentListFile" accept=".xlsx,.xls"
+             style="display:none;" onchange="onExcelSelected(event)">
+    `;
+    dz.onclick = () => document.getElementById('studentListFile').click();
+  }
+}
+
+// â”€â”€ Inject _selectedExcelFile into create_exam.js buildExamFormData â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// create_exam.js appends student_list_file from DOM input â€” we override that
+// to use our variable instead, which is always reliable
+window.addEventListener('load', function() {
+  const orig = window.buildExamFormData;
+  if (typeof orig !== 'function') return;
+  window.buildExamFormData = function() {
+    const result = orig();
+    if (!result) return result;
+    // Remove any stale student_list_file the JS may have added from dead input
+    // Then add from our reliable variable
+    if (_selectedExcelFile) {
+      result.fd.append('student_list_file', _selectedExcelFile);
+      console.log('[Excel] Attached to FormData:', _selectedExcelFile.name,
+                  _selectedExcelFile.size, 'bytes');
+    } else {
+      console.warn('[Excel] No file selected â€” fallback to enrollment');
+    }
+    return result;
+  };
+  console.log('[Excel] buildExamFormData patched successfully');
+});
+</script>
+</body>
+</html>
