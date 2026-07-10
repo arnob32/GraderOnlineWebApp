@@ -68,6 +68,44 @@ The app will be available at http://localhost:8000.
 - generated_pdfs/ - generated PDF outputs
 - outputs/ - output artifacts
 
+## Testing Instructions for Professors
+
+You can test the application using a single app link and different user roles.
+
+### Docker test steps
+
+1. Open the project folder that contains the Dockerfile and docker-compose.yml.
+2. Run:
+
+   ```bash
+   docker compose up --build
+   ```
+
+3. Open the app in your browser:
+
+   ```text
+   http://localhost:8000
+   ```
+
+4. Use the following test accounts (if available) or create new ones through the signup/login pages:
+
+   - Admin
+   - Teacher
+   - Student
+
+5. Test the main features:
+   - Login and logout
+   - Create or manage exams
+   - Upload exam papers
+   - Grade submissions
+   - View results and export reports
+
+### Stop the app
+
+```bash
+docker compose down
+```
+
 ## Notes
 
 - The app creates required folders automatically when started.
