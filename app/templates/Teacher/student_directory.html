@@ -4,438 +4,293 @@
 
 {% block extra_css %}
 <style>
-.back-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 13px;
-  border:1px solid var(--border);border-radius:8px;background:var(--surface);
-  color:var(--text-muted);font-size:12px;font-weight:600;text-decoration:none;
-  margin-bottom:12px;transition:all .14s}
+.back-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 13px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text-muted);font-size:12px;font-weight:600;text-decoration:none;margin-bottom:12px;transition:all .14s}
 .back-btn:hover{border-color:var(--primary,#2563eb);color:var(--primary,#2563eb)}
-.back-btn svg{width:13px;height:13px}
-
 .page-hdr{margin-bottom:20px}
 .page-hdr h1{font-size:20px;font-weight:800;color:var(--text-primary)}
-.page-hdr p{font-size:13px;color:var(--text-muted);margin-top:4px}
-
 .filter-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px}
-.filter-bar select,.filter-bar input{
-  padding:7px 12px;border:1px solid var(--border);border-radius:8px;
-  font-size:12px;font-family:inherit;background:var(--surface);outline:none;color:var(--text-primary)}
+.filter-bar select,.filter-bar input{padding:7px 12px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-family:inherit;background:var(--surface);outline:none;color:var(--text-primary)}
 .filter-bar input{min-width:200px}
-.filter-tab{padding:7px 14px;border-radius:8px;border:1px solid var(--border);
-  background:var(--surface);font-size:12px;font-weight:600;color:var(--text-muted);cursor:pointer;font-family:inherit}
+.filter-tab{padding:7px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface);font-size:12px;font-weight:600;color:var(--text-muted);cursor:pointer;font-family:inherit}
 .filter-tab.active{background:var(--primary,#2563eb);color:#fff;border-color:var(--primary,#2563eb)}
-
 .stats-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;
-  padding:14px 16px;text-align:center}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;text-align:center}
 .stat-val{font-size:24px;font-weight:800;color:var(--text-primary)}
 .stat-lbl{font-size:11px;color:var(--text-muted);margin-top:2px;text-transform:uppercase;letter-spacing:.04em}
-
 .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
-.table-hdr{display:flex;align-items:center;justify-content:space-between;
-  padding:14px 20px;border-bottom:1px solid var(--border)}
+.table-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border)}
 .table-hdr h2{font-size:14px;font-weight:700;color:var(--text-primary)}
-.btn-send-all{padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;
-  font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
-.btn-send-all:hover{background:#15803d}
-.btn-send-all:disabled{opacity:.5;cursor:not-allowed}
-
+.btn-action{padding:8px 14px;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn-action:disabled{opacity:.4;cursor:not-allowed}
 table{width:100%;border-collapse:collapse}
-thead th{padding:10px 16px;text-align:left;font-size:11px;font-weight:700;
-  text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);
-  background:#f8fafc;border-bottom:1px solid var(--border)}
+thead th{padding:10px 16px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);background:#f8fafc;border-bottom:1px solid var(--border)}
 tbody tr{border-bottom:1px solid var(--border)}
-tbody tr:last-child{border-bottom:none}
 tbody tr:hover{background:#f8fafc}
 td{padding:12px 16px;font-size:13px;color:var(--text-primary);vertical-align:middle}
 .code-cell{font-family:monospace;font-size:12px;color:var(--text-muted)}
-
-.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:100px;
-  font-size:11px;font-weight:700}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700}
 .badge-uploaded{background:#dbeafe;color:#1e40af}
 .badge-marked{background:#dcfce7;color:#166534}
 .badge-returned{background:#f3e8ff;color:#7e22ce}
 .badge-pending{background:#fef9c3;color:#854d0e}
-
-.action-btns{display:flex;gap:6px}
-.btn-grade{padding:5px 12px;background:#2563eb;color:#fff;border:none;border-radius:6px;
-  font-size:11px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block}
-.btn-grade:hover{background:#1d4ed8}
-.btn-send{padding:5px 12px;background:#16a34a;color:#fff;border:none;border-radius:6px;
-  font-size:11px;font-weight:700;cursor:pointer;font-family:inherit}
-.btn-send:hover{background:#15803d}
-.btn-send:disabled{opacity:.5;cursor:not-allowed;background:#d1d5db;color:#6b7280}
-.btn-view{padding:5px 12px;background:#f8fafc;color:#334155;border:1px solid #e2e8f0;
-  border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block}
-
+.action-btns{display:flex;gap:6px;flex-wrap:wrap}
+.btn-grade{padding:5px 12px;background:#2563eb;color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block}
+.btn-send{padding:5px 12px;background:#16a34a;color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn-email{padding:5px 12px;background:#6366f1;color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn-view{padding:5px 12px;background:#f8fafc;color:#334155;border:1px solid #e2e8f0;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block}
 .empty-state{text-align:center;padding:48px 20px;color:var(--text-muted)}
-.empty-state svg{width:40px;height:40px;margin:0 auto 12px;display:block;opacity:.4}
 .empty-state h3{font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:6px}
-
 .score-cell{font-family:monospace;font-size:12px}
-.grade-badge{display:inline-flex;width:28px;height:28px;border-radius:7px;
-  align-items:center;justify-content:center;font-weight:800;font-size:12px}
-.grade-A{background:#ede9fe;color:#5b21b6}
-.grade-B{background:#d1fae5;color:#065f46}
-.grade-C{background:#fef9c3;color:#854d0e}
-.grade-D{background:#ffedd5;color:#9a3412}
-.grade-F{background:#fee2e2;color:#991b1b}
-.grade-none{background:#f1f5f9;color:#64748b}
-
-.checkbox-col{width:32px}
+.grade-badge{display:inline-flex;width:28px;height:28px;border-radius:7px;align-items:center;justify-content:center;font-weight:800;font-size:12px}
+.grade-A{background:#ede9fe;color:#5b21b6}.grade-B{background:#d1fae5;color:#065f46}
+.grade-C{background:#fef9c3;color:#854d0e}.grade-D{background:#ffedd5;color:#9a3412}
+.grade-F{background:#fee2e2;color:#991b1b}.grade-none{background:#f1f5f9;color:#64748b}
 input[type=checkbox]{width:15px;height:15px;cursor:pointer}
 </style>
 {% endblock %}
 
 {% block content %}
 <a href="/dashboard/teacher" class="back-btn">
-  <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-    <polyline points="15 18 9 12 15 6"/>
-  </svg>
+  <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" width="13" height="13"><polyline points="15 18 9 12 15 6"/></svg>
   Back to Dashboard
 </a>
-
-<div class="page-hdr">
-  <h1>Student Directory</h1>
-</div>
+<div class="page-hdr"><h1>Student Directory</h1></div>
 
 <div class="stats-strip">
-  <div class="stat-card">
-    <div class="stat-val" id="statTotal">—</div>
-    <div class="stat-lbl">Total Papers</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-val" id="statPending">—</div>
-    <div class="stat-lbl">Pending Marking</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-val" id="statMarked">—</div>
-    <div class="stat-lbl">Marked</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-val" id="statSent">—</div>
-    <div class="stat-lbl">Sent to Students</div>
-  </div>
+  <div class="stat-card"><div class="stat-val" id="statTotal">—</div><div class="stat-lbl">Total Papers</div></div>
+  <div class="stat-card"><div class="stat-val" id="statPending">—</div><div class="stat-lbl">Pending</div></div>
+  <div class="stat-card"><div class="stat-val" id="statMarked">—</div><div class="stat-lbl">Marked</div></div>
+  <div class="stat-card"><div class="stat-val" id="statSent">—</div><div class="stat-lbl">Sent</div></div>
 </div>
 
 <div class="filter-bar">
-  <input type="text" id="searchInput" placeholder="Search student or exam…" oninput="applyFilters()">
-  <select id="examFilter" onchange="applyFilters();onExamFilterChange(this.value)">
+  <input type="text" id="sd-search" placeholder="Search student or exam…" oninput="sdFilter()">
+  <select id="sd-exam" onchange="sdFilter();sdExamChange(this.value)">
     <option value="">All Exams</option>
     {% for exam in exams %}
     <option value="{{ exam.id }}">{{ exam.title }}</option>
     {% endfor %}
   </select>
-  <select id="subjectFilter" onchange="applyFilters()">
+  <select id="sd-subj" onchange="sdFilter()">
     <option value="">All Subjects</option>
     {% for subj in subjects %}
     <option value="{{ subj.id }}">{{ subj.name }}</option>
     {% endfor %}
   </select>
-  <button class="filter-tab active" onclick="setTab(this,'')">All</button>
-  <button class="filter-tab" onclick="setTab(this,'uploaded,sent_for_marking')">Pending</button>
-  <button class="filter-tab" onclick="setTab(this,'marked')">Marked</button>
+  <button class="filter-tab active" onclick="sdTab(this,'')">All</button>
+  <button class="filter-tab" onclick="sdTab(this,'uploaded,sent_for_marking')">Pending</button>
+  <button class="filter-tab" onclick="sdTab(this,'marked')">Marked</button>
+  <button class="filter-tab" onclick="sdTab(this,'returned')">Sent</button>
 </div>
 
 <div class="table-wrap">
   <div class="table-hdr">
-    <h2>Papers <span id="paperCount" style="font-weight:400;color:var(--text-muted);font-size:12px"></span></h2>
-    <div style="display:flex;gap:8px;">
-      <button class="btn-send-all" id="btnSendAll" onclick="sendSelected()" disabled>
-        Send Selected
-      </button>
-      <span id="examRequiredHint" style="font-size:11px;color:#f59e0b;font-weight:600;display:none;">
-        &#9888; Select an exam first
-      </span>
-      <button id="btnExportExcel" onclick="exportExcel()" disabled
-              style="padding:8px 14px;background:#0f172a;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;opacity:.4;">
-        Export Excel
-      </button>
-      <button id="btnSendAdmin" onclick="sendToAdmin()" disabled
-              style="padding:8px 14px;background:#7c3aed;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;opacity:.4;">
-        Send to Admin
-      </button>
+    <h2>Papers <span id="sd-count" style="font-weight:400;color:var(--text-muted);font-size:12px"></span></h2>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <button class="btn-action" style="background:#16a34a;" id="sd-send-sel" onclick="sdSendSelected()" disabled>Send Selected</button>
+      <button class="btn-action" style="background:#0f172a;" id="sd-excel" onclick="sdExportExcel()" disabled>Export Excel</button>
+      <button class="btn-action" style="background:#7c3aed;" id="sd-admin" onclick="sdSendAdmin()" disabled>Send to Admin</button>
     </div>
   </div>
+  <div id="sd-table"><div class="empty-state"><h3>Loading…</h3></div></div>
+</div>
 
-  <div id="tableBody">
-    <div class="empty-state">
-      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-        <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
-      </svg>
-      <h3>Loading papers…</h3>
+<!-- Email Modal -->
+<div id="sd-email-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
+  <div style="background:var(--surface);border-radius:16px;padding:28px;width:480px;max-width:90vw;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+    <div style="display:flex;justify-content:space-between;margin-bottom:20px;">
+      <h3 style="font-size:16px;font-weight:700;margin:0;">Send Result Email</h3>
+      <button onclick="sdCloseEmail()" style="background:none;border:none;font-size:20px;cursor:pointer;">×</button>
+    </div>
+    <div style="margin-bottom:12px;"><div style="font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:4px;">TO</div><div id="sd-email-to" style="padding:10px;background:#f8fafc;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:monospace;"></div></div>
+    <div style="margin-bottom:12px;"><div style="font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:4px;">SUBJECT</div><div id="sd-email-subj" style="padding:10px;background:#f8fafc;border:1px solid var(--border);border-radius:8px;font-size:13px;"></div></div>
+    <div style="margin-bottom:20px;"><div style="font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:4px;">MESSAGE</div><div id="sd-email-body" style="padding:12px;background:#f8fafc;border:1px solid var(--border);border-radius:8px;font-size:13px;white-space:pre-line;line-height:1.6;max-height:200px;overflow-y:auto;"></div></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;">
+      <button onclick="sdCloseEmail()" style="padding:9px 20px;border:1px solid var(--border);border-radius:8px;background:var(--surface);font-size:13px;font-weight:600;cursor:pointer;">Cancel</button>
+      <button onclick="sdConfirmEmail()" id="sd-email-btn" style="padding:9px 20px;border:none;border-radius:8px;background:#6366f1;color:#fff;font-size:13px;font-weight:700;cursor:pointer;">✉ Send Email</button>
     </div>
   </div>
 </div>
-
 {% endblock %}
 
 {% block extra_js %}
 <script>
-var allPapers = [], statusFilter = '';
+var sdPapers = [], sdStatus = '', sdEmailId = null;
 
-async function loadPapers() {
+window.addEventListener('load', function() { sdLoad(); });
+
+async function sdLoad() {
   try {
-    var r    = await fetch('/api/student-directory');
-    var data = await r.json();
-    allPapers = (data.submissions || data.results || data || []);
-    updateStats();
-    applyFilters();
+    var r = await fetch('/api/student-directory');
+    var d = await r.json();
+    sdPapers = Array.isArray(d) ? d : (d.submissions || d.results || []);
+    sdStats(); sdFilter();
   } catch(e) {
-    document.getElementById('tableBody').innerHTML =
-      '<div class="empty-state"><h3>Failed to load papers</h3><p>' + e.message + '</p></div>';
+    document.getElementById('sd-table').innerHTML = '<div class="empty-state"><h3>Failed to load: ' + e.message + '</h3></div>';
   }
 }
 
-function updateStats() {
-  var total   = allPapers.length;
-  var pending = allPapers.filter(function(p){ return ['uploaded','sent_for_marking','assigned'].includes(p.status); }).length;
-  var marked  = allPapers.filter(function(p){ return p.status === 'marked'; }).length;
-  var sent    = allPapers.filter(function(p){ return p.status === 'returned'; }).length;
-  var s = function(id,v){ var el=document.getElementById(id); if(el) el.textContent=v; };
-  s('statTotal', total); s('statPending', pending);
-  s('statMarked', marked); s('statSent', sent);
+function sdStats() {
+  var el = function(id, v) { var e = document.getElementById(id); if(e) e.textContent = v; };
+  el('statTotal',   sdPapers.length);
+  el('statPending', sdPapers.filter(function(p){ return ['uploaded','sent_for_marking','assigned'].indexOf(p.status) > -1; }).length);
+  el('statMarked',  sdPapers.filter(function(p){ return p.status === 'marked'; }).length);
+  el('statSent',    sdPapers.filter(function(p){ return p.status === 'returned'; }).length);
 }
 
-function setTab(btn, status) {
+function sdTab(btn, status) {
   document.querySelectorAll('.filter-tab').forEach(function(b){ b.classList.remove('active'); });
   btn.classList.add('active');
-  statusFilter = status;
-  applyFilters();
+  sdStatus = status;
+  sdFilter();
 }
 
-function applyFilters() {
-  var q       = document.getElementById('searchInput').value.toLowerCase().trim();
-  var examId  = document.getElementById('examFilter').value;
-  var subjId  = document.getElementById('subjectFilter').value;
-  var statuses = statusFilter ? statusFilter.split(',') : [];
-
-  var list = allPapers.filter(function(p) {
-    var matchQ   = !q || [p.student_name,p.student_code,p.exam_title].join(' ').toLowerCase().includes(q);
-    var matchE   = !examId || String(p.exam_id) === examId;
-    var matchSub = !subjId || String(p.subject_id) === subjId;
-    var matchSt  = !statuses.length || statuses.includes(p.status);
-    return matchQ && matchE && matchSub && matchSt;
+function sdFilter() {
+  var q  = document.getElementById('sd-search').value.toLowerCase().trim();
+  var ex = document.getElementById('sd-exam').value;
+  var su = document.getElementById('sd-subj').value;
+  var st = sdStatus ? sdStatus.split(',') : [];
+  var list = sdPapers.filter(function(p) {
+    var mQ = !q  || (p.student_name + ' ' + p.student_code + ' ' + p.exam_title).toLowerCase().indexOf(q) > -1;
+    var mE = !ex || String(p.exam_id) === ex;
+    var mS = !su || String(p.subject_id) === su;
+    var mSt= !st.length || st.indexOf(p.status) > -1;
+    return mQ && mE && mS && mSt;
   });
-
-  var cnt = document.getElementById('paperCount');
-  if (cnt) cnt.textContent = '— ' + list.length + ' paper' + (list.length!==1?'s':'');
-  renderTable(list);
-  updateSendAllBtn();
+  var c = document.getElementById('sd-count');
+  if(c) c.textContent = '— ' + list.length + ' paper' + (list.length !== 1 ? 's' : '');
+  sdRender(list);
+  sdUpdateSendBtn();
 }
 
-function renderTable(list) {
-  var body = document.getElementById('tableBody');
-  if (!list.length) {
-    body.innerHTML = '<div class="empty-state"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" style="width:40px;height:40px;margin:0 auto 12px;display:block;opacity:.4"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg><h3>No papers found</h3></div>';
-    return;
-  }
+function sdSafe(s) { return String(s == null ? '' : s).replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 
-  body.innerHTML = '<table>' +
-    '<thead><tr>' +
-    '<th class="checkbox-col"><input type="checkbox" id="chkAll" onchange="toggleAll(this)"></th>' +
-    '<th>Student</th><th>Exam</th><th>Score</th><th>Grade</th><th>Status</th><th>Actions</th>' +
-    '</tr></thead>' +
-    '<tbody>' +
-    list.map(function(p) {
-      var statusClass = {
-        uploaded:'badge-uploaded', sent_for_marking:'badge-pending',
-        assigned:'badge-pending', marked:'badge-marked', returned:'badge-returned'
-      }[p.status] || 'badge-pending';
-      var statusLabel = {
-        uploaded:'Uploaded', sent_for_marking:'Pending',
-        assigned:'Assigned', marked:' Marked', returned:' Sent'
-      }[p.status] || p.status;
-
-      var grade = p.letter_grade || '—';
-      var gradeClass = 'grade-' + (grade !== '—' ? grade : 'none');
-      var score = (p.score !== null && p.score !== undefined && p.max_score)
-        ? p.score + ' / ' + p.max_score + (p.percentage ? ' (' + Math.round(p.percentage) + '%)' : '')
-        : '—';
-
-      var canSend  = p.status === 'marked';
-      var gradeUrl = '/uploads/grade-submission/' + p.submission_id;
-
-      return '<tr>' +
-        '<td><input type="checkbox" class="row-chk" data-id="' + p.submission_id + '" ' +
-          (canSend ? '' : 'disabled') + ' onchange="updateSendAllBtn()"></td>' +
-        '<td><div style="font-weight:600">' + esc(p.student_name||'—') + '</div>' +
-          '<div class="code-cell">' + esc(p.student_code||'') + '</div></td>' +
-        '<td><div>' + esc(p.exam_title||'—') + '</div>' +
-          '<div style="font-size:11px;color:var(--text-muted)">' + esc(p.subject_name||'') + '</div></td>' +
-        '<td class="score-cell">' + score + '</td>' +
-        '<td><span class="grade-badge ' + gradeClass + '">' + esc(grade) + '</span></td>' +
-        '<td><span class="badge ' + statusClass + '">' + statusLabel + '</span></td>' +
-        '<td><div class="action-btns">' +
-          '<a href="' + gradeUrl + '" class="btn-grade">Grade</a>' +
-          (p.file_url ? '<a href="' + esc(p.file_url) + '" target="_blank" class="btn-view">View</a>' : '') +
-          (canSend
-            ? '<button class="btn-send" onclick="sendOne(' + p.submission_id + ',this)">Send</button>'
-            : (p.status === 'returned'
-                ? '<a href="' + esc(p.download_url || p.file_url || '') + '" target="_blank" style="font-size:11px;padding:4px 10px;background:#f0fdf4;border:1px solid #86efac;border-radius:6px;color:#16a34a;text-decoration:none;font-weight:600;">✓ Sent · View</a>'
-                : '')) +
-        '</div></td>' +
+function sdRender(list) {
+  var body = document.getElementById('sd-table');
+  if (!list.length) { body.innerHTML = '<div class="empty-state"><h3>No papers found</h3></div>'; return; }
+  var rows = list.map(function(p) {
+    var stCls = {uploaded:'badge-uploaded',sent_for_marking:'badge-pending',assigned:'badge-pending',marked:'badge-marked',returned:'badge-returned'}[p.status] || 'badge-pending';
+    var stLbl = {uploaded:'Uploaded',sent_for_marking:'Pending',assigned:'Assigned',marked:'Marked',returned:'Sent'}[p.status] || p.status;
+    var grade = p.letter_grade || '—';
+    var gCls  = 'grade-' + (grade !== '—' ? grade : 'none');
+    var score = (p.score != null && p.max_score) ? p.score + ' / ' + p.max_score + (p.percentage ? ' (' + Math.round(p.percentage) + '%)' : '') : '—';
+    var canSend  = p.status === 'marked';
+    var canEmail = p.status === 'marked' || p.status === 'returned';
+    var emailBtn = canEmail ? '<button class="btn-email" onclick="sdEmail(' + p.submission_id + ')">✉ Email</button>' : '';
+    var actionBtn = canSend
+      ? '<button class="btn-send" onclick="sdSendOne(' + p.submission_id + ',this)">Send</button>' + emailBtn
+      : (p.status === 'returned' ? '<span style="font-size:11px;padding:4px 10px;background:#f0fdf4;border:1px solid #86efac;border-radius:6px;color:#16a34a;font-weight:600;">✓ Sent</span>' + emailBtn : '');
+    return '<tr>' +
+      '<td><input type="checkbox" class="sd-chk" data-id="' + p.submission_id + '"' + (canSend ? '' : ' disabled') + ' onchange="sdUpdateSendBtn()"></td>' +
+      '<td><div style="font-weight:600">' + sdSafe(p.student_name) + '</div><div class="code-cell">' + sdSafe(p.student_code) + '</div></td>' +
+      '<td><div>' + sdSafe(p.exam_title) + '</div><div style="font-size:11px;color:var(--text-muted)">' + sdSafe(p.subject_name) + '</div></td>' +
+      '<td class="score-cell">' + score + '</td>' +
+      '<td><span class="grade-badge ' + gCls + '">' + sdSafe(grade) + '</span></td>' +
+      '<td><span class="badge ' + stCls + '">' + stLbl + '</span></td>' +
+      '<td><div class="action-btns"><a href="/uploads/grade-submission/' + p.submission_id + '" class="btn-grade">Grade</a>' + actionBtn + '</div></td>' +
       '</tr>';
-    }).join('') +
-    '</tbody></table>';
+  }).join('');
+  body.innerHTML = '<table><thead><tr><th style="width:32px"><input type="checkbox" onchange="sdToggleAll(this)"></th><th>Student</th><th>Exam</th><th>Score</th><th>Grade</th><th>Status</th><th>Actions</th></tr></thead><tbody>' + rows + '</tbody></table>';
 }
 
-function toggleAll(chk) {
-  document.querySelectorAll('.row-chk:not(:disabled)').forEach(function(c){ c.checked = chk.checked; });
-  updateSendAllBtn();
+function sdToggleAll(chk) { document.querySelectorAll('.sd-chk:not(:disabled)').forEach(function(c){ c.checked = chk.checked; }); sdUpdateSendBtn(); }
+
+function sdUpdateSendBtn() {
+  var n = document.querySelectorAll('.sd-chk:checked').length;
+  var b = document.getElementById('sd-send-sel');
+  if(b) { b.disabled = n === 0; b.textContent = n > 0 ? 'Send ' + n + ' to Students' : 'Send Selected'; }
 }
 
-function updateSendAllBtn() {
-  var selected = document.querySelectorAll('.row-chk:checked').length;
-  var btn = document.getElementById('btnSendAll');
-  if (btn) {
-    btn.disabled = selected === 0;
-    btn.textContent = selected > 0
-      ? '✈ Send ' + selected + ' paper' + (selected!==1?'s':'') + ' to Students'
-      : '✈ Send Selected to Students';
-  }
+function sdExamChange(v) {
+  var ex = document.getElementById('sd-excel');
+  var ad = document.getElementById('sd-admin');
+  var on = !!v;
+  if(ex) { ex.disabled = !on; ex.style.opacity = on ? '1' : '.4'; }
+  if(ad) { ad.disabled = !on; ad.style.opacity = on ? '1' : '.4'; }
 }
 
-async function sendOne(submissionId, btn) {
-  if (!confirm('Send this paper to the student? They will be able to see their results.')) return;
-  btn.disabled = true;
-  btn.textContent = 'Sending…';
+function sdExportExcel() {
+  var examId = document.getElementById('sd-exam').value;
+  if(!examId) { sdToast('Select an exam first', false); return; }
+  window.location.href = '/results-tools/exam/' + examId + '/excel';
+}
+
+async function sdSendAdmin() {
+  var examId = document.getElementById('sd-exam').value;
+  if(!examId) { sdToast('Select an exam first', false); return; }
+  var note = prompt('Optional note to admin:') || '';
+  var fd = new FormData(); fd.append('note', note);
   try {
-    var r = await fetch('/marking/' + submissionId + '/send-to-student', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({})
-    });
-    if (!r.ok) { var e = await r.json(); throw new Error(e.detail || 'Failed'); }
-    var p = allPapers.find(function(x){ return x.submission_id === submissionId; });
-    if (p) p.status = 'returned';
-    updateStats();
-    // Switch to All tab so sent paper stays visible
-    document.querySelectorAll('.filter-tab').forEach(function(b){ b.classList.remove('active'); });
-    document.querySelector('.filter-tab[onclick*="setTab(this,\'\')"]').classList.add('active');
-    statusFilter = '';
-    applyFilters();
-    showToast('Paper sent to student ✓ — visible in All tab', 'success');
-  } catch(e) {
-    btn.disabled = false; btn.textContent = 'Send';
-    showToast(e.message || 'Send failed', 'error');
-  }
+    var r = await fetch('/results-tools/exam/' + examId + '/send-to-admin', {method:'POST', body:fd});
+    var d = await r.json();
+    sdToast(d.message || 'Sent to admin', d.ok);
+  } catch(e) { sdToast(e.message, false); }
 }
 
-async function sendSelected() {
-  var ids = Array.from(document.querySelectorAll('.row-chk:checked'))
-    .map(function(c){ return parseInt(c.dataset.id); });
-  if (!ids.length) return;
-  if (!confirm('Send ' + ids.length + ' paper(s) to students?')) return;
-  var btn = document.getElementById('btnSendAll');
+async function sdSendOne(id, btn) {
+  if(!confirm('Send this paper to the student?')) return;
+  btn.disabled = true; btn.textContent = 'Sending…';
+  try {
+    var r = await fetch('/marking/' + id + '/send-to-student', {method:'POST', headers:{'Content-Type':'application/json'}, body:'{}'});
+    if(!r.ok) { var e = await r.json(); throw new Error(e.detail || 'Failed'); }
+    var p = sdPapers.find(function(x){ return x.submission_id === id; });
+    if(p) p.status = 'returned';
+    sdStats(); sdStatus = ''; sdFilter();
+    sdToast('Paper sent to student ✓', true);
+  } catch(e) { btn.disabled = false; btn.textContent = 'Send'; sdToast(e.message, false); }
+}
+
+async function sdSendSelected() {
+  var ids = Array.from(document.querySelectorAll('.sd-chk:checked')).map(function(c){ return parseInt(c.dataset.id); });
+  if(!ids.length) return;
+  if(!confirm('Send ' + ids.length + ' paper(s) to students?')) return;
+  var btn = document.getElementById('sd-send-sel');
   btn.disabled = true; btn.textContent = 'Sending…';
   var ok = 0;
-  for (var i = 0; i < ids.length; i++) {
+  for(var i = 0; i < ids.length; i++) {
     try {
-      var r = await fetch('/marking/' + ids[i] + '/send-to-student', {
-        method: 'POST', headers: {'Content-Type':'application/json'}, body: '{}'
-      });
-      if (r.ok) {
-        var p = allPapers.find(function(x){ return x.submission_id === ids[i]; });
-        if (p) p.status = 'returned';
-        ok++;
-      }
+      var r = await fetch('/marking/' + ids[i] + '/send-to-student', {method:'POST', headers:{'Content-Type':'application/json'}, body:'{}'});
+      if(r.ok) { var p = sdPapers.find(function(x){ return x.submission_id === ids[i]; }); if(p) p.status = 'returned'; ok++; }
     } catch(e) {}
   }
-  updateStats();
-  // Switch to All tab so sent papers stay visible
-  document.querySelectorAll('.filter-tab').forEach(function(b){ b.classList.remove('active'); });
-  document.querySelector('.filter-tab[onclick*="setTab(this,\'\')"]').classList.add('active');
-  statusFilter = '';
-  applyFilters();
-  showToast(ok + ' paper(s) sent ✓ — visible in All tab', 'success');
+  sdStats(); sdStatus = ''; sdFilter();
+  sdToast(ok + ' paper(s) sent ✓', true);
 }
 
-function showToast(msg, type) {
-  var existing = document.getElementById('sd-toast');
-  if (existing) existing.remove();
-  var t = document.createElement('div');
-  t.id = 'sd-toast';
-  t.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);' +
-    'padding:10px 20px;border-radius:100px;font-size:13px;font-weight:600;color:#fff;z-index:9999;' +
-    'background:' + (type==='success'?'#16a34a':'#dc2626');
-  t.textContent = msg;
-  document.body.appendChild(t);
-  setTimeout(function(){ t.remove(); }, 3000);
+function sdEmail(id) {
+  sdEmailId = id;
+  var p = sdPapers.find(function(x){ return x.submission_id === id; });
+  if(!p) return;
+  var score = p.score != null && p.max_score ? p.score + ' / ' + p.max_score : 'Not yet graded';
+  var pct = p.percentage ? ' (' + Math.round(p.percentage) + '%)' : '';
+  document.getElementById('sd-email-to').textContent   = p.student_email || 'No email on file';
+  document.getElementById('sd-email-subj').textContent = 'Your Results: ' + p.exam_title;
+  document.getElementById('sd-email-body').textContent =
+    'Dear ' + p.student_name + ',\n\nYour results for ' + p.exam_title + ' are now available.\n\nScore: ' + score + pct +
+    (p.letter_grade ? '\nGrade: ' + p.letter_grade : '') +
+    '\n\nPlease log in to the GraderOnline portal to view your detailed results.\n\nBest regards,\nGraderOnline System';
+  document.getElementById('sd-email-modal').style.display = 'flex';
 }
 
-function esc(s) {
-  return String(s==null?'':s)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+function sdCloseEmail() { document.getElementById('sd-email-modal').style.display = 'none'; sdEmailId = null; }
 
-window.onload = loadPapers;
-function onExamFilterChange(v){var e=document.getElementById("btnExportExcel");var a=document.getElementById("btnSendAdmin");var on=!!v;if(e){e.disabled=!on;e.style.opacity=on?"1":".4";}if(a){a.disabled=!on;a.style.opacity=on?"1":".4";}}
-
-
-
-function getSelectedExamId() {
-  var examSel = document.getElementById('examFilter');
-  return examSel ? examSel.value : '';
-}
-
-function exportExcel() {
-  var examId = getSelectedExamId();
-  if (examId) {
-    window.location.href = '/results-tools/exam/' + examId + '/excel';
-  } else {
-    exportAllAsExcel();
-  }
-}
-
-function exportAllAsExcel() {
-  var rows = [['Student Code','Student Name','Exam','Subject','Score','Max Score','Percentage','Grade','Status']];
-  var papers = allPapers;
-  var q      = document.getElementById('searchInput').value.toLowerCase().trim();
-  var examId = document.getElementById('examFilter').value;
-  var subjId = document.getElementById('subjectFilter').value;
-  var statuses = statusFilter ? statusFilter.split(',') : [];
-  papers = papers.filter(function(p) {
-    var matchQ  = !q || [p.student_name,p.student_code,p.exam_title].join(' ').toLowerCase().includes(q);
-    var matchE  = !examId || String(p.exam_id) === examId;
-    var matchS  = !subjId || String(p.subject_id) === subjId;
-    var matchSt = !statuses.length || statuses.includes(p.status);
-    return matchQ && matchE && matchS && matchSt;
-  });
-  papers.forEach(function(p) {
-    rows.push([
-      p.student_code || '',
-      p.student_name || '',
-      p.exam_title   || '',
-      p.subject_name || '',
-      p.score        != null ? p.score    : '',
-      p.max_score    != null ? p.max_score: '',
-      p.percentage   != null ? Math.round(p.percentage) + '%' : '',
-      p.letter_grade || '',
-      p.status       || '',
-    ]);
-  });
-  var csv = rows.map(function(r){
-    return r.map(function(c){ return '"'+String(c).replace(/"/g,'""')+'"'; }).join(',');
-  }).join('\n');
-  var blob = new Blob([csv], {type:'text/csv'});
-  var a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'results_all_' + new Date().toISOString().slice(0,10) + '.csv';
-  a.click();
-  showToast('Downloaded ' + papers.length + ' result(s)', 'success');
-}
-
-async function sendToAdmin() {
-  var examId = getSelectedExamId();
-  if (!examId) { showToast('Select an exam first', 'error'); return; }
-  var note = prompt('Optional note to admin:') || '';
+async function sdConfirmEmail() {
+  if(!sdEmailId) return;
+  var btn = document.getElementById('sd-email-btn');
+  btn.disabled = true; btn.textContent = 'Sending…';
   try {
-    var fd = new FormData(); fd.append('note', note);
-    var r = await fetch('/results-tools/exam/' + examId + '/send-to-admin', {method:'POST',body:fd});
+    var r = await fetch('/results-tools/submission/' + sdEmailId + '/send-email', {method:'POST'});
     var d = await r.json();
-    if (d.ok || d.message) showToast(d.message || 'Sent to admin ✓', 'success');
-    else showToast(d.detail || 'Failed', 'error');
-  } catch(e) { showToast(e.message, 'error'); }
+    sdCloseEmail(); sdToast(d.message || 'Email sent', d.ok);
+  } catch(e) { sdToast(e.message, false); }
+  finally { btn.disabled = false; btn.textContent = '✉ Send Email'; }
+}
+
+function sdToast(msg, ok) {
+  var t = document.getElementById('sd-toast');
+  if(!t) { t = document.createElement('div'); t.id = 'sd-toast'; t.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:100px;font-size:13px;font-weight:600;color:#fff;z-index:9999'; document.body.appendChild(t); }
+  t.textContent = msg; t.style.background = ok ? '#16a34a' : '#dc2626'; t.style.opacity = '1';
+  clearTimeout(window._sdtt); window._sdtt = setTimeout(function(){ t.style.opacity = '0'; }, 3000);
 }
 </script>
 {% endblock %}

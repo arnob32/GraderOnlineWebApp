@@ -4,7 +4,6 @@ load_dotenv()
 import os
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-import secrets
 from fastapi.responses import RedirectResponse
 from starlette.middleware.sessions import SessionMiddleware
 from app.database import engine
@@ -34,7 +33,7 @@ os.makedirs("generated_pdfs",  exist_ok=True)
 os.makedirs("uploaded_papers", exist_ok=True)
 
 app = FastAPI(title="ExamMark")
-app.add_middleware(SessionMiddleware, secret_key="change-this-secret-key-in-production", max_age=0, https_only=False, same_site="lax")
+app.add_middleware(SessionMiddleware, secret_key="exammark-secret-key-2026", max_age=86400)
 Base.metadata.create_all(bind=engine)
 
 app.include_router(uploaded_exams_routes)

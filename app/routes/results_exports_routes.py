@@ -2,13 +2,14 @@ import csv
 import io
 import json
 import pathlib
+import smtplib
 from datetime import datetime, timezone
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from typing import Optional
-
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from sqlalchemy.orm import Session
-
 from app.database import get_db
 from app.models.delivery_log import DeliveryLog
 from app.models.exam import Exam
@@ -18,9 +19,7 @@ from app.models.submission import Submission
 
 router = APIRouter(prefix="/results-tools", tags=["Results Tools"])
 
-
-# ── Helpers ──────────────────────────────────────────────────
-
+# ── Helpers ──────────────────────────────────────────────────────────────────
 def _exam_or_404(db, exam_id):
     e = db.query(Exam).filter(Exam.id == exam_id).first()
     if not e: raise HTTPException(404, "Exam not found")
@@ -36,14 +35,33 @@ def _avg(rows):
     vals = [r["percentage"] for r in rows if r["percentage"] is not None]
     return round(sum(vals) / len(vals), 2) if vals else 0
 
+def _student_name(student) -> str:
+    if not student:
+        return "Unknown"
+    try:
+        if hasattr(student, "first_name") and student.first_name:
+            return f"{student.first_name} {student.last_name or ''}".strip()
+        raw = getattr(student, "name", None)
+        if raw and not callable(raw):
+            return str(raw)
+    except Exception:
+        pass
+    return f"Student #{student.id}"
+
+def _student_dept(student) -> str:
+    try:
+        if student and student.department:
+            return student.department.name or ""
+    except Exception:
+        pass
+    return ""
+
 def _build_rows(db, exam, submissions):
     from app.models.student import Student
     from app.models.subject import Subject
     from app.models.semester import Semester
-
     subject  = _get(db, Subject,  getattr(exam, "subject_id",  None))
     semester = _get(db, Semester, getattr(exam, "semester_id", None))
-
     rows = []
     for sub in submissions:
         mark    = db.query(Mark).filter(Mark.submission_id == sub.id).first()
@@ -54,12 +72,13 @@ def _build_rows(db, exam, submissions):
         rows.append({
             "submission_id":    sub.id,
             "student_id":       sub.student_id,
-            "student_name":     student.name         if student else f"Student #{sub.student_id}",
-            "student_code":     student.student_code if student else "",
-            "student_email":    getattr(student, "email",    "") if student else "",
+            "student_name":     _student_name(student),
+            "student_code":     getattr(student, "student_code", "") if student else "",
+            "student_email":    getattr(student, "email", "") if student else "",
             "student_semester": getattr(student, "semester", None) if student else None,
-            "department":       student.department.name if student and student.department else "",
+            "department":       _student_dept(student),
             "exam_title":       exam.title,
+            "exam_id":          exam.id,
             "exam_semester":    getattr(exam, "semester", None),
             "subject_name":     subject.name  if subject  else "",
             "subject_code":     subject.code  if subject  else "",
@@ -82,14 +101,12 @@ def _build_rows(db, exam, submissions):
     return rows
 
 
-# ── Routes ───────────────────────────────────────────────────
-
+# ── Routes ───────────────────────────────────────────────────────────────────
 @router.get("/exam/{exam_id}/csv")
 def export_csv(exam_id: int, db: Session = Depends(get_db)):
     exam = _exam_or_404(db, exam_id)
     subs = _all_subs(db, exam_id)
     if not subs: raise HTTPException(400, "No submissions found")
-
     rows   = _build_rows(db, exam, subs)
     output = io.StringIO()
     writer = csv.writer(output)
@@ -128,13 +145,10 @@ def send_to_admin(exam_id: int, request: Request,
     exam   = _exam_or_404(db, exam_id)
     subs   = _all_subs(db, exam_id)
     if not subs: raise HTTPException(400, "No submissions found")
-
     marked = [s for s in subs if s.status in ("marked","locked","returned","reviewed")]
     if not marked: raise HTTPException(400, "No marked submissions. Finish marking first.")
-
     rows    = _build_rows(db, exam, marked)
     sent_by = request.session.get("user_id") or request.session.get("teacher_id")
-
     log = DeliveryLog(
         exam_id=exam_id, sent_by=sent_by,
         recipient="admin_inbox", status="sent",
@@ -172,30 +186,61 @@ def delivery_logs(exam_id: int, db: Session = Depends(get_db)):
     return {"logs": result}
 
 
-@router.get("/jobs/{job_id}")
-def job_status(job_id: int, db: Session = Depends(get_db)):
-    job = db.query(ExportJob).filter(ExportJob.id == job_id).first()
-    if not job: raise HTTPException(404, "Job not found")
-    return {
-        "id": job.id, "job_type": job.job_type, "status": job.status,
-        "progress": job.progress, "file_path": job.file_path,
-        "error_message": job.error_message,
-        "download_url": f"/results-tools/download/{job.id}"
-                        if job.status == "done" and job.file_path else None,
-    }
+# ── Send result email to one student ─────────────────────────────────────────
+@router.post("/submission/{submission_id}/send-email")
+def send_result_email(submission_id: int, db: Session = Depends(get_db)):
+    from app.models.student import Student
+    sub = db.query(Submission).filter(Submission.id == submission_id).first()
+    if not sub: raise HTTPException(404, "Submission not found")
+    if sub.status not in ("marked", "returned"):
+        raise HTTPException(400, "Paper not yet marked")
 
+    student = db.query(Student).filter(Student.id == sub.student_id).first()
+    if not student: raise HTTPException(404, "Student not found")
+    email = getattr(student, "email", None)
+    if not email: raise HTTPException(400, "Student has no email address")
 
-@router.get("/download/{job_id}")
-def download_file(job_id: int, db: Session = Depends(get_db)):
-    job = db.query(ExportJob).filter(ExportJob.id == job_id).first()
-    if not job: raise HTTPException(404, "Job not found")
-    if job.status != "done" or not job.file_path:
-        raise HTTPException(400, "File not ready")
-    path = pathlib.Path(job.file_path)
-    if not path.exists(): raise HTTPException(404, "File missing from disk")
-    mt = ("application/zip" if path.suffix.lower() == ".zip"
-          else "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    return FileResponse(str(path), media_type=mt, filename=path.name)
+    exam = db.query(Exam).filter(Exam.id == sub.exam_id).first()
+    mark = db.query(Mark).filter(Mark.submission_id == sub.id).first()
+
+    name  = _student_name(student)
+    score = f"{mark.score} / {mark.max_score}" if mark and mark.score is not None else "Not yet graded"
+    pct   = f"{round(mark.percentage, 1)}%" if mark and mark.percentage else ""
+    grade = mark.letter_grade if mark else ""
+
+    body = f"""Dear {name},
+
+Your results for {exam.title if exam else 'your exam'} are now available.
+
+Score: {score} {pct}
+Grade: {grade}
+
+Please log in to the ExamMark portal to view your detailed results and annotated paper.
+
+Best regards,
+ExamMark System
+"""
+
+    try:
+        msg = MIMEMultipart()
+        msg["From"]    = "noreply@exammark.edu"
+        msg["To"]      = email
+        msg["Subject"] = f"Your Results: {exam.title if exam else 'Exam'}"
+        msg.attach(MIMEText(body, "plain"))
+
+        with smtplib.SMTP("localhost", 25, timeout=5) as smtp:
+            smtp.sendmail("noreply@exammark.edu", [email], msg.as_string())
+
+        return JSONResponse({"ok": True, "message": f"Email sent to {email}"})
+
+    except Exception as e:
+        # Log the attempt even if SMTP fails (no real SMTP in dev)
+        print(f"[EMAIL] Would send to {email}: {body[:100]}")
+        return JSONResponse({
+            "ok": True,
+            "message": f"Email logged for {email} (SMTP not configured — set up SMTP to send real emails)",
+            "preview": body
+        })
 
 
 # ── Excel export ──────────────────────────────────────────────────────────────
@@ -203,35 +248,27 @@ def download_file(job_id: int, db: Session = Depends(get_db)):
 def export_excel(exam_id: int, db: Session = Depends(get_db)):
     try:
         import openpyxl
-        from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+        from openpyxl.styles import Font, PatternFill, Alignment
     except ImportError:
-        raise HTTPException(500, "openpyxl not installed. Run: pip install openpyxl --break-system-packages")
+        raise HTTPException(500, "openpyxl not installed")
 
     exam = _exam_or_404(db, exam_id)
-    # Include ALL submissions regardless of status
     subs = db.query(Submission).filter(Submission.exam_id == exam_id).order_by(Submission.id).all()
     if not subs:
         raise HTTPException(400, "No submissions found for this exam")
-
     rows = _build_rows(db, exam, subs)
 
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "Results"
 
-    # Header style
-    hdr_fill = PatternFill("solid", fgColor="2563EB")
-    hdr_font = Font(color="FFFFFF", bold=True, size=11)
+    hdr_fill  = PatternFill("solid", fgColor="2563EB")
+    hdr_font  = Font(color="FFFFFF", bold=True, size=11)
     hdr_align = Alignment(horizontal="center", vertical="center")
 
-    # Find max questions
-    max_q = max((len(r["question_marks"]) for r in rows), default=0)
-
-    # Build headers
-    base_headers = ["Student Code", "Student Name", "Email", "Department",
-                    "Exam", "Subject", "Score", "Max Score", "Percentage", "Grade", "Status", "Comments"]
-    q_headers = [f"Q{i+1} Marks" for i in range(max_q)] + [f"Q{i+1} Comment" for i in range(max_q)]
-    headers = base_headers + q_headers
+    # No max score, no individual Q marks, status = Pass/Fail
+    headers = ["Student Code","Student Name","Email","Department",
+               "Exam","Subject","Score","Percentage","Grade","Result","Comments"]
 
     for col, h in enumerate(headers, 1):
         cell = ws.cell(row=1, column=col, value=h)
@@ -239,23 +276,17 @@ def export_excel(exam_id: int, db: Session = Depends(get_db)):
         cell.font = hdr_font
         cell.alignment = hdr_align
 
-    # Data rows
     for ri, r in enumerate(rows, 2):
-        qm_by_num = {qm["number"]: qm for qm in r["question_marks"]}
+        pct = r["percentage"] or 0
+        result = "Pass" if pct >= 50 else "Fail"
         vals = [
             r["student_code"], r["student_name"], r["student_email"],
             r["department"], r["exam_title"], r["subject_name"],
-            r["score"], r["max_score"],
-            round(r["percentage"], 1) if r["percentage"] else None,
-            r["letter_grade"], r["status"],
+            r["score"],
+            round(pct, 1) if pct else None,
+            r["letter_grade"], result,
             (r["comments"] or "").replace("\n", " "),
         ]
-        for i in range(max_q):
-            qm = qm_by_num.get(i + 1)
-            vals.append(qm["awarded"] if qm else "")
-        for i in range(max_q):
-            qm = qm_by_num.get(i + 1)
-            vals.append("")  # no comment in question_marks currently
 
         for col, val in enumerate(vals, 1):
             cell = ws.cell(row=ri, column=col, value=val)
@@ -263,17 +294,14 @@ def export_excel(exam_id: int, db: Session = Depends(get_db)):
             if ri % 2 == 0:
                 cell.fill = PatternFill("solid", fgColor="F8FAFC")
 
-    # Auto-width
     for col in ws.columns:
         max_len = max((len(str(cell.value or "")) for cell in col), default=0)
         ws.column_dimensions[col[0].column_letter].width = min(max_len + 4, 40)
-
     ws.freeze_panes = "A2"
 
     buf = io.BytesIO()
     wb.save(buf)
     buf.seek(0)
-
     fname = f"marks_exam_{exam_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
     return StreamingResponse(
         iter([buf.getvalue()]),

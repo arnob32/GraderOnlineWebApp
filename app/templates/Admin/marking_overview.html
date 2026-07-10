@@ -256,7 +256,7 @@ function renderTable(rows) {
                   </td>
                   <td>
                     <span class="badge ${statusColor[r.status] || "badge-info"}">
-                      ${r.status || "—"}
+                      ${r.percentage != null ? (r.percentage >= 50 ? "Pass" : "Fail") : (r.status || "—")}
                     </span>
                   </td>
                 </tr>`).join("")}
