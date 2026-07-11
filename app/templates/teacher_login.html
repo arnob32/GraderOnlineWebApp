@@ -6,8 +6,71 @@
   <title>Teacher Login — GradeOnline</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="/static/CSS/auth.css">
+  <style>
+    .floating-bubbles {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .floating-bubbles .fb {
+      position: absolute;
+      bottom: -150px;
+      border-radius: 50%;
+      animation: fbFloat linear infinite;
+    }
+    .floating-bubbles .fb.solid {
+      background: radial-gradient(circle at 30% 30%, rgba(37,99,235,0.35), rgba(37,99,235,0.08));
+    }
+    .floating-bubbles .fb.outline {
+      background: transparent;
+      border: 2px solid rgba(37,99,235,0.4);
+    }
+    .floating-bubbles .fb.soft {
+      background: rgba(37,99,235,0.12);
+    }
+    @keyframes fbFloat {
+      0%   { transform: translateY(0) translateX(0) scale(1); opacity: 0; }
+      10%  { opacity: 0.8; }
+      90%  { opacity: 0.6; }
+      100% { transform: translateY(-115vh) translateX(var(--fb-drift, 40px)) scale(1.05); opacity: 0; }
+    }
+    .page, .card, .navbar, .footer { position: relative; z-index: 1; }
+
+    /* Bigger, more polished card — page-scoped, doesn't touch auth.css */
+    .card {
+      max-width: 460px !important;
+      width: 92% !important;
+      padding: 48px 44px !important;
+      border-radius: 20px !important;
+      box-shadow: 0 12px 40px rgba(15, 23, 42, 0.12) !important;
+    }
+    .card .logo-name {
+      font-size: 28px !important;
+    }
+    .card .fld {
+      margin-bottom: 20px !important;
+    }
+    .card .fld label {
+      font-size: 13px !important;
+      margin-bottom: 8px !important;
+    }
+    .card .inp {
+      padding: 13px 16px !important;
+      font-size: 15px !important;
+      border-radius: 10px !important;
+    }
+    .card .submit-btn {
+      padding: 14px !important;
+      font-size: 15px !important;
+      border-radius: 10px !important;
+      margin-top: 8px !important;
+    }
+  </style>
 </head>
 <body>
+<div class="floating-bubbles" id="floatingBubbles"></div>
 <nav class="navbar">
   <a href="/" class="nav-brand"><div class="nav-brand-name">GradeOnline<sup>*</sup></div></a>
 </nav>
@@ -56,5 +119,33 @@
 </div>
 <footer class="footer"><span class="foot-copy">© 2026 GradeOnline</span></footer>
 <script src="/static/JS/auth.js"></script>
+<script>
+  (function () {
+    const container = document.getElementById('floatingBubbles');
+    const count = 28;
+    const variants = ['solid', 'outline', 'soft'];
+
+    for (let i = 0; i < count; i++) {
+      const bubble = document.createElement('div');
+      const variant = variants[Math.floor(Math.random() * variants.length)];
+      bubble.className = 'fb ' + variant;
+
+      const size = Math.random() * 70 + 20;
+      const left = Math.random() * 100;
+      const duration = Math.random() * 14 + 10;
+      const delay = Math.random() * 20;
+      const drift = (Math.random() * 160 - 80) + 'px';
+
+      bubble.style.width = size + 'px';
+      bubble.style.height = size + 'px';
+      bubble.style.left = left + '%';
+      bubble.style.animationDuration = duration + 's';
+      bubble.style.animationDelay = delay + 's';
+      bubble.style.setProperty('--fb-drift', drift);
+
+      container.appendChild(bubble);
+    }
+  })();
+</script>
 </body>
 </html>
