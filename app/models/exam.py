@@ -11,6 +11,7 @@ class Exam(Base):
     title       = Column(String,  nullable=False)
     semester    = Column(Integer, nullable=True)
     total_marks = Column(Integer, nullable=True)
+    cover_rules = Column(String,  nullable=True)
     created_at  = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     department_id = Column(Integer, ForeignKey("departments.id"), nullable=True)

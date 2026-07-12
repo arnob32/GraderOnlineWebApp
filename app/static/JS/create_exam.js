@@ -392,6 +392,7 @@ async function submitExam(mode = 'preview') {
   if (btn) { btn.disabled = true; btn.textContent = mode === 'preview' ? 'Preparing…' : 'Generating…'; }
   showToast(mode === 'preview' ? 'Preparing preview…' : 'Generating PDF…');
 
+  if (mode === 'preview') fd.append('preview_only', 'true');
   try {
     const res = await fetch('/api/exams/create', { method: 'POST', body: fd });
     if (!res.ok) {

@@ -74,6 +74,24 @@ You can test the application using a single app link and different user roles.
 
 ### Docker test steps
 
+If you are sending the project to a professor, share the folder containing the Dockerfile and docker-compose.yml, then ask them to run:
+
+```bash
+docker compose up --build
+```
+
+After the containers start, open:
+
+```text
+http://localhost:8000
+```
+
+If they want to stop it later, run:
+
+```bash
+docker compose down
+```
+
 1. Open the project folder that contains the Dockerfile and docker-compose.yml.
 2. Run:
 

@@ -79,7 +79,7 @@ def download_exam_pdf(filename: str):
         path=pdf_path,
         media_type="application/pdf",
         filename=safe_name,
-        headers={"Content-Disposition": f'attachment; filename="{safe_name}"'},
+        headers={"Content-Disposition": f'inline; filename="{safe_name}"'},
     )
 
 
@@ -166,6 +166,7 @@ async def create_exam(
     cover_rules:          str        = Form(""),
     exam_date_time:       str        = Form(""),
     student_list_file:    UploadFile = File(None),
+    preview_only:         str        = Form(""),
     db: Session = Depends(get_db),
 ):
     # Parse questions
@@ -243,6 +244,8 @@ async def create_exam(
         students_entries = get_eligible_students(db, subject_id, semester)
         print(f"[EXAM] Fallback: {len(students_entries)} eligible students")
 
+    if preview_only == 'true':
+        students_entries = students_entries[:1]
     if not students_entries:
         raise HTTPException(404,
             "No students found. Upload a Teilnehmerliste Excel file or ensure "
