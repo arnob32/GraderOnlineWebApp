@@ -1,0 +1,4 @@
+{
+    "java.debug.settings.console": "externalTerminal",
+    "workbench.browser.openLocalhostLinks": false
+}

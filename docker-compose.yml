@@ -10,7 +10,7 @@ services:
     environment:
       SECRET_KEY: change-this-secret-key-in-production
     volumes:
-      - ./WebApplication:/app/WebApplication.db
+      - ./WebApplication.db:/app/WebApplication.db
       - ./uploaded_papers:/app/uploaded_papers
       - ./uploaded_exams:/app/uploaded_exams
       - ./generated_pdfs:/app/generated_pdfs

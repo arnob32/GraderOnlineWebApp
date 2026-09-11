@@ -1,40 +1,856 @@
 {% extends "Admin/layout.html" %}
-{% block title %}Administration{% endblock %}
-{% block page_title %}Exam Board: {% endblock %}
+
+{% block title %}
+Administration
+{% endblock %}
+
+{% block page_title %}
+Exam Board:
+{% endblock %}
+
 
 {% block content %}
 
-<div class="page-header">
- 
+<div class="admin-dashboard">
+
+
+  <!-- ==================================================
+       PAGE HEADER
+       ================================================== -->
+
+  <div class="admin-page-header">
+
+    <div>
+
+      <h2 class="dashboard-heading">
+        Exam Board
+      </h2>
+
+      <p class="dashboard-subheading">
+        Overview of your academic administration
+      </p>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- ==================================================
+       STATISTICS
+       ================================================== -->
+
+  <div class="admin-stats-grid">
+
+
+    <!-- Departments -->
+    <div class="admin-stat-card purple">
+
+      <div class="stat-top">
+
+        <div class="stat-icon purple-icon">
+
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8">
+
+            <path d="M3 21h18"/>
+
+            <path d="M5 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16"/>
+
+            <path d="M15 21V9a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v12"/>
+
+            <path d="M9 7h2"/>
+            <path d="M9 11h2"/>
+            <path d="M9 15h2"/>
+
+          </svg>
+
+        </div>
+
+
+        <div>
+
+          <div class="stat-value">
+            {{ total_departments }}
+          </div>
+
+          <div class="stat-label">
+            Departments
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="stat-footer">
+        Academic departments
+      </div>
+
+    </div>
+
+
+
+    <!-- Semesters -->
+    <div class="admin-stat-card blue">
+
+      <div class="stat-top">
+
+        <div class="stat-icon blue-icon">
+
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8">
+
+            <path
+              d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v17H6.5A2.5 2.5 0 0 0 4 22V5.5Z"/>
+
+            <path
+              d="M4 18.5A2.5 2.5 0 0 1 6.5 16H20"/>
+
+          </svg>
+
+        </div>
+
+
+        <div>
+
+          <div class="stat-value">
+            {{ total_semesters }}
+          </div>
+
+          <div class="stat-label">
+            Semesters
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="stat-footer">
+        Academic semesters
+      </div>
+
+    </div>
+
+
+
+    <!-- Subjects -->
+    <div class="admin-stat-card green">
+
+      <div class="stat-top">
+
+        <div class="stat-icon green-icon">
+
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8">
+
+            <path
+              d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v17H6.5A2.5 2.5 0 0 0 4 21.5v-17Z"/>
+
+            <path
+              d="M4 17.5A2.5 2.5 0 0 1 6.5 15H20"/>
+
+            <path d="M8 6h7"/>
+            <path d="M8 10h7"/>
+
+          </svg>
+
+        </div>
+
+
+        <div>
+
+          <div class="stat-value">
+            {{ total_subjects }}
+          </div>
+
+          <div class="stat-label">
+            Subjects
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="stat-footer">
+        Registered subjects
+      </div>
+
+    </div>
+
+
+
+    <!-- Teachers -->
+    <div class="admin-stat-card blue">
+
+      <div class="stat-top">
+
+        <div class="stat-icon blue-icon">
+
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8">
+
+            <circle
+              cx="9"
+              cy="8"
+              r="3"/>
+
+            <path
+              d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/>
+
+            <path
+              d="M16 5.5a3 3 0 0 1 0 5.8"/>
+
+            <path
+              d="M18 14c1.8.8 3 2.6 3 4.7"/>
+
+          </svg>
+
+        </div>
+
+
+        <div>
+
+          <div class="stat-value">
+            {{ total_teachers }}
+          </div>
+
+          <div class="stat-label">
+            Teachers
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="stat-footer">
+        Registered teachers
+      </div>
+
+    </div>
+
+
+
+    <!-- Students -->
+    <div class="admin-stat-card amber">
+
+      <div class="stat-top">
+
+        <div class="stat-icon amber-icon">
+
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8">
+
+            <circle
+              cx="9"
+              cy="8"
+              r="3"/>
+
+            <path
+              d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/>
+
+            <circle
+              cx="17.5"
+              cy="8"
+              r="2.5"/>
+
+            <path
+              d="M15.5 14c2.8.1 5 2.3 5 5"/>
+
+          </svg>
+
+        </div>
+
+
+        <div>
+
+          <div class="stat-value">
+            {{ total_students }}
+          </div>
+
+          <div class="stat-label">
+            Students
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="stat-footer">
+        Registered students
+      </div>
+
+    </div>
+
+
+
+    <!-- Pending approvals -->
+    <div class="admin-stat-card pink">
+
+      <div class="stat-top">
+
+        <div class="stat-icon pink-icon">
+
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8">
+
+            <circle
+              cx="12"
+              cy="12"
+              r="9"/>
+
+            <path
+              d="M12 7v5l3 2"/>
+
+          </svg>
+
+        </div>
+
+
+        <div>
+
+          <div class="stat-value">
+            {{ pending_teachers }}
+          </div>
+
+          <div class="stat-label">
+            Pending Approvals
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="stat-footer">
+        Awaiting approval
+      </div>
+
+    </div>
+
+
+  </div>
+
+
+
+  <!-- ==================================================
+       LOWER DASHBOARD
+       ================================================== -->
+
+  <div class="admin-content-grid">
+
+
+    <!-- ==================================================
+         OVERVIEW
+         ================================================== -->
+
+    <section class="admin-panel">
+
+
+      <div class="panel-header">
+
+        <div>
+
+          <h3>
+            Administration Overview
+          </h3>
+
+          <p>
+            Current academic system summary
+          </p>
+
+        </div>
+
+
+        <div class="panel-badge">
+          Overview
+        </div>
+
+      </div>
+
+
+
+      <div class="overview-body">
+
+
+        <div class="overview-intro">
+
+          <div class="overview-icon">
+
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8">
+
+              <path d="M4 19V5"/>
+              <path d="M4 19h16"/>
+              <path d="M7 15l3-4 3 2 5-7"/>
+
+            </svg>
+
+          </div>
+
+
+          <div>
+
+            <h4>
+              Academic Dashboard
+            </h4>
+
+            <p>
+              Manage your academic departments,
+              semesters, subjects, teachers and
+              students from the administration panel.
+            </p>
+
+          </div>
+
+        </div>
+
+
+
+        <!-- Decorative chart -->
+        <div class="admin-chart">
+
+          <div class="chart-y">
+
+            <span>40</span>
+            <span>30</span>
+            <span>20</span>
+            <span>10</span>
+            <span>0</span>
+
+          </div>
+
+
+          <div class="chart-container">
+
+
+            <div class="chart-line line-1"></div>
+            <div class="chart-line line-2"></div>
+            <div class="chart-line line-3"></div>
+            <div class="chart-line line-4"></div>
+            <div class="chart-line line-5"></div>
+
+
+            <svg
+              class="admin-chart-svg"
+              viewBox="0 0 700 220"
+              preserveAspectRatio="none">
+
+
+              <path
+                class="chart-fill"
+                d="
+                  M0,175
+                  C70,150 100,140 145,125
+                  C205,105 230,55 290,62
+                  C345,68 365,115 420,105
+                  C475,95 500,70 555,78
+                  C615,86 640,120 700,145
+                  L700,220
+                  L0,220
+                  Z
+                "/>
+
+
+              <path
+                class="chart-path"
+                d="
+                  M0,175
+                  C70,150 100,140 145,125
+                  C205,105 230,55 290,62
+                  C345,68 365,115 420,105
+                  C475,95 500,70 555,78
+                  C615,86 640,120 700,145
+                "/>
+
+
+              <circle cx="0" cy="175" r="5"/>
+              <circle cx="145" cy="125" r="5"/>
+              <circle cx="290" cy="62" r="5"/>
+              <circle cx="420" cy="105" r="5"/>
+              <circle cx="555" cy="78" r="5"/>
+              <circle cx="700" cy="145" r="5"/>
+
+
+            </svg>
+
+
+            <div class="chart-labels">
+
+              <span>Jan</span>
+              <span>Feb</span>
+              <span>Mar</span>
+              <span>Apr</span>
+              <span>May</span>
+              <span>Jun</span>
+
+            </div>
+
+
+          </div>
+
+        </div>
+
+
+
+        <!-- Summary -->
+        <div class="summary-grid">
+
+
+          <div class="summary-item purple-summary">
+
+            <strong>
+              {{ total_departments }}
+            </strong>
+
+            <span>
+              Departments
+            </span>
+
+          </div>
+
+
+          <div class="summary-item blue-summary">
+
+            <strong>
+              {{ total_teachers }}
+            </strong>
+
+            <span>
+              Teachers
+            </span>
+
+          </div>
+
+
+          <div class="summary-item amber-summary">
+
+            <strong>
+              {{ total_students }}
+            </strong>
+
+            <span>
+              Students
+            </span>
+
+          </div>
+
+
+          <div class="summary-item green-summary">
+
+            <strong>
+              {{ total_subjects }}
+            </strong>
+
+            <span>
+              Subjects
+            </span>
+
+          </div>
+
+
+        </div>
+
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ==================================================
+         SYSTEM SUMMARY
+         ================================================== -->
+
+    <section class="admin-panel">
+
+
+      <div class="panel-header">
+
+        <div>
+
+          <h3>
+            System Summary
+          </h3>
+
+          <p>
+            Current administration information
+          </p>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="system-list">
+
+
+        <!-- Subjects -->
+
+        <div class="system-item">
+
+          <div class="system-icon green-system">
+
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8">
+
+              <path
+                d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v17H6.5A2.5 2.5 0 0 0 4 21.5v-17Z"/>
+
+              <path
+                d="M4 17.5A2.5 2.5 0 0 1 6.5 15H20"/>
+
+            </svg>
+
+          </div>
+
+
+          <div class="system-text">
+
+            <strong>
+              Subjects
+            </strong>
+
+            <span>
+              Academic subjects registered
+            </span>
+
+          </div>
+
+
+          <strong class="system-number">
+            {{ total_subjects }}
+          </strong>
+
+        </div>
+
+
+
+        <!-- Teachers -->
+
+        <div class="system-item">
+
+          <div class="system-icon blue-system">
+
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8">
+
+              <circle
+                cx="9"
+                cy="8"
+                r="3"/>
+
+              <path
+                d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/>
+
+              <path
+                d="M16 5.5a3 3 0 0 1 0 5.8"/>
+
+            </svg>
+
+          </div>
+
+
+          <div class="system-text">
+
+            <strong>
+              Teachers
+            </strong>
+
+            <span>
+              Teachers registered
+            </span>
+
+          </div>
+
+
+          <strong class="system-number">
+            {{ total_teachers }}
+          </strong>
+
+        </div>
+
+
+
+        <!-- Students -->
+
+        <div class="system-item">
+
+          <div class="system-icon amber-system">
+
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8">
+
+              <circle
+                cx="9"
+                cy="8"
+                r="3"/>
+
+              <path
+                d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/>
+
+              <circle
+                cx="17.5"
+                cy="8"
+                r="2.5"/>
+
+            </svg>
+
+          </div>
+
+
+          <div class="system-text">
+
+            <strong>
+              Students
+            </strong>
+
+            <span>
+              Students registered
+            </span>
+
+          </div>
+
+
+          <strong class="system-number">
+            {{ total_students }}
+          </strong>
+
+        </div>
+
+
+
+        <!-- Departments -->
+
+        <div class="system-item">
+
+          <div class="system-icon purple-system">
+
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8">
+
+              <path d="M4 19V5"/>
+              <path d="M4 19h16"/>
+              <path d="M7 15l3-4 3 2 5-7"/>
+
+            </svg>
+
+          </div>
+
+
+          <div class="system-text">
+
+            <strong>
+              Departments
+            </strong>
+
+            <span>
+              Academic departments
+            </span>
+
+          </div>
+
+
+          <strong class="system-number">
+            {{ total_departments }}
+          </strong>
+
+        </div>
+
+
+
+        <!-- Pending -->
+
+        <div class="system-item">
+
+          <div class="system-icon pink-system">
+
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8">
+
+              <circle
+                cx="12"
+                cy="12"
+                r="9"/>
+
+              <path
+                d="M12 7v5l3 2"/>
+
+            </svg>
+
+          </div>
+
+
+          <div class="system-text">
+
+            <strong>
+              Pending Approvals
+            </strong>
+
+            <span>
+              Awaiting teacher approval
+            </span>
+
+          </div>
+
+
+          <strong class="system-number">
+            {{ pending_teachers }}
+          </strong>
+
+        </div>
+
+
+      </div>
+
+
+    </section>
+
+
+  </div>
+
+
 </div>
-
-<div class="stats-grid">
-  <div class="stat-card purple">
-    <div class="stat-value">{{ total_departments }}</div>
-    <div class="stat-label">Departments</div>
-  </div>
-  <div class="stat-card blue">
-    <div class="stat-value">{{ total_semesters }}</div>
-    <div class="stat-label">Semesters</div>
-  </div>
-  <div class="stat-card green">
-    <div class="stat-value">{{ total_subjects }}</div>
-    <div class="stat-label">Subjects</div>
-  </div>
-  <div class="stat-card blue">
-    <div class="stat-value">{{ total_teachers }}</div>
-    <div class="stat-label">Teachers</div>
-  </div>
-  <div class="stat-card amber">
-    <div class="stat-value">{{ total_students }}</div>
-    <div class="stat-label">Students</div>
-  </div>
-  <div class="stat-card purple">
-    <div class="stat-value">{{ pending_teachers }}</div>
-    <div class="stat-label">Pending Approvals</div>
-  </div>
-</div>
-
-
 
 {% endblock %}

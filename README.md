@@ -68,6 +68,46 @@ The app will be available at http://localhost:8000.
 - generated_pdfs/ - generated PDF outputs
 - outputs/ - output artifacts
 
+## Setup and Test Procedure
+
+### 1. Prerequisites
+
+- Docker installed and running
+- A terminal with access to Docker Compose
+
+### 2. Build and start the app
+
+From the project root, run:
+
+```bash
+docker compose up --build
+```
+
+This will build the image and start the web application on port 8000.
+
+### 3. Open the application
+
+Visit:
+
+```text
+http://localhost:8000
+```
+
+### 4. Test the main flows
+
+- Open the login page and sign in or sign up
+- Check admin, teacher, and student access
+- Create or manage an exam
+- Upload a sample paper or exam file
+- Review marking and result pages
+- Confirm exports and generated files work
+
+### 5. Stop the app
+
+```bash
+docker compose down
+```
+
 ## Testing Instructions for Professors
 
 You can test the application using a single app link and different user roles.

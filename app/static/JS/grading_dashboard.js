@@ -701,7 +701,8 @@ function selectTool(tool) {
 }
 
 function setPointerEvents(tool) {
-  const active = !!tool;
+  const _st=["mark-stamp","comment-stamp","tick-stamp","cross-stamp"];
+  const active = !!tool || _st.includes(activeTool);
   if (floatCanvas) {
     floatCanvas.style.pointerEvents = active ? 'auto' : 'none';
     if (annoCanvas) { annoCanvas.style.pointerEvents = 'none'; annoCanvas.style.cursor = 'default'; }

@@ -185,6 +185,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink-1);he
       <div class="atool" id="tool-pen"       onclick="selectTool('pen')">✏ Pen</div>
       <div class="atool" id="tool-highlight" onclick="selectTool('highlight')">🖊 Highlight</div>
       <div class="sep"></div>
+      <div class="atool" id="tool-mark-stamp" onclick="selectTool('mark-stamp')" title="Click answer to stamp mark score" style="background:#fee2e2;color:#991b1b;border-color:#fca5a5;">&#9999; Mark</div>
+      <div class="atool" id="tool-comment-stamp" onclick="selectTool('comment-stamp')" title="Click to place comment bubble on paper" style="background:#fefce8;color:#854d0e;border-color:#fde047;">&#128172; Comment</div>
+      <div class="atool" id="tool-tick-stamp" onclick="selectTool('tick-stamp')" title="Click to stamp a tick" style="background:#f0fdf4;color:#166534;border-color:#86efac;">&#10003; Tick</div>
+      <div class="atool" id="tool-cross-stamp" onclick="selectTool('cross-stamp')" title="Click to stamp a cross" style="background:#fff1f2;color:#be123c;border-color:#fda4af;">&#10007; Cross</div>
+      <div class="sep"></div>
       <div class="cpick sel" style="background:#ffe94d" data-c="#ffe94d" onclick="setColor(this)"></div>
       <div class="cpick" style="background:#c8401a" data-c="#c8401a" onclick="setColor(this)"></div>
       <div class="cpick" style="background:#1a1209" data-c="#1a1209" onclick="setColor(this)"></div>
@@ -265,6 +270,7 @@ const STUDENT_NAME = "{{ student_name }}";
 localStorage.removeItem('anno_{{ submission_id }}');
 {% endif %}
 </script>
+<script src="/static/JS/stamp_addon.js"></script>
 <script src="/static/JS/grading_dashboard.js?v=1781111799"></script>
 </body>
 </html>
