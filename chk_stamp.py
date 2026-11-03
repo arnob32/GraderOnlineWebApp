@@ -1,6 +1,0 @@
-﻿content = open('app/static/JS/stamp_addon.js', encoding='utf-8', errors='replace').read()
-print("Size:", len(content))
-print("Has addStamp:", "addStamp" in content)
-print("Has bakeStamps:", "bakeStamps" in content)
-idx = content.find("addStamp")
-print(repr(content[idx:idx+150]))
