@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Grade — {{ student_name }}</title>
+<title>Grade â€” {{ student_name }}</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -142,14 +142,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink-1);he
 <div class="topbar">
   <div class="tb-logo"><div class="tb-mark">EM</div>ExamMark</div>
   <div class="tb-div"></div>
-  <a href="/uploads/uploaded-exams" class="tbtn">← Papers</a>
+  <a href="/uploads/uploaded-exams" class="tbtn">â† Papers</a>
   <div class="tb-div"></div>
   <strong style="font-size:13px">{{ student_name }}</strong>
-  <span style="font-size:12px;color:var(--ink-3)"> — {{ exam_title }}</span>
+  <span style="font-size:12px;color:var(--ink-3)"> â€” {{ exam_title }}</span>
   <div class="spacer"></div>
   <div class="paper-info">Paper <strong>{{ paper_num }}</strong> / <strong>{{ total_papers }}</strong></div>
   {% if next_id %}
-  <a href="/uploads/grade-submission/{{ next_id }}?teacher_id={{ teacher_id }}" class="tbtn">Next →</a>
+  <a href="/uploads/grade-submission/{{ next_id }}?teacher_id={{ teacher_id }}" class="tbtn">Next â†’</a>
   {% endif %}
 </div>
 
@@ -163,27 +163,27 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink-1);he
         <button class="vb"    id="btnBox"  onclick="setView('box')">Answer box</button>
       </div>
       <div class="sep"></div>
-      <button class="pnav-btn" id="btnPrev" onclick="prevPg()">‹</button>
-      <div class="pnav-lbl" id="pgInd">— / —</div>
-      <button class="pnav-btn" id="btnNext" onclick="nextPg()">›</button>
+      <button class="pnav-btn" id="btnPrev" onclick="prevPg()">â€¹</button>
+      <div class="pnav-lbl" id="pgInd">â€” / â€”</div>
+      <button class="pnav-btn" id="btnNext" onclick="nextPg()">â€º</button>
       <div class="sep"></div>
       <div class="zoom-group">
         <span class="zoom-lbl" id="zoomLbl">Page zoom</span>
-        <button class="zoom-btn" onclick="zoomOut()">−</button>
+        <button class="zoom-btn" onclick="zoomOut()">âˆ’</button>
         <span class="zoom-pct" id="zoomPct">100%</span>
         <button class="zoom-btn" onclick="zoomIn()">+</button>
-        <button class="zoom-reset" onclick="zoomReset()">↺</button>
+        <button class="zoom-reset" onclick="zoomReset()">â†º</button>
       </div>
       <div class="sep"></div>
       <div class="zoom-group" id="boxNavGroup" style="display:none">
-        <button class="zoom-btn" onclick="prevBox()" title="Previous question box">◀</button>
+        <button class="zoom-btn" onclick="prevBox()" title="Previous question box">â—€</button>
         <span class="zoom-lbl" id="boxNavLbl" style="min-width:48px;text-align:center">Box 1</span>
-        <button class="zoom-btn" onclick="nextBox()" title="Next question box">▶</button>
+        <button class="zoom-btn" onclick="nextBox()" title="Next question box">â–¶</button>
       </div>
     </div>
     <div class="anno-bar">
-      <div class="atool" id="tool-pen"       onclick="selectTool('pen')">✏ Pen</div>
-      <div class="atool" id="tool-highlight" onclick="selectTool('highlight')">🖊 Highlight</div>
+      <div class="atool" id="tool-pen"       onclick="selectTool('pen')">âœ Pen</div>
+      <div class="atool" id="tool-highlight" onclick="selectTool('highlight')">ðŸ–Š Highlight</div>
       <div class="sep"></div>
       <div class="atool" id="tool-mark-stamp" onclick="selectTool('mark-stamp')" title="Click answer to stamp mark score" style="background:#fee2e2;color:#991b1b;border-color:#fca5a5;">&#9999; Mark</div>
       <div class="atool" id="tool-comment-stamp" onclick="selectTool('comment-stamp')" title="Click to place comment bubble on paper" style="background:#fefce8;color:#854d0e;border-color:#fde047;">&#128172; Comment</div>
@@ -228,8 +228,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink-1);he
       </div>
       <div class="score-grid">
         <div class="sc"><div class="sc-val" id="dispAw">0</div><div class="sc-lbl">Awarded</div></div>
-        <div class="sc hi"><div class="sc-val" id="dispMax">{{ exam_total_marks if exam_total_marks else '—' }}</div><div class="sc-lbl">Total</div></div>
-        <div class="sc"><div class="sc-val" id="dispPct">—</div><div class="sc-lbl">Score</div></div>
+        <div class="sc hi"><div class="sc-val" id="dispMax">{{ exam_total_marks if exam_total_marks else 'â€”' }}</div><div class="sc-lbl">Total</div></div>
+        <div class="sc"><div class="sc-val" id="dispPct">â€”</div><div class="sc-lbl">Score</div></div>
       </div>
       <div class="prog-wrap">
         <div class="prog-hdr"><span>Marking progress</span><span id="progTxt">0 / 0 marked</span></div>
@@ -237,16 +237,16 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink-1);he
       </div>
       <div class="status-banner" id="statusBanner"></div>
       <div class="sec-lbl">Questions</div>
-      <div id="qContainer"><div style="text-align:center;padding:24px;color:var(--ink-4);font-size:13px">Loading…</div></div>
+      <div id="qContainer"><div style="text-align:center;padding:24px;color:var(--ink-4);font-size:13px">Loadingâ€¦</div></div>
       <div class="overall-sec">
         <div class="overall-lbl">Overall feedback</div>
-        <textarea class="fbta" id="overallFb" rows="3" placeholder="General comment…"></textarea>
+        <textarea class="fbta" id="overallFb" rows="3" placeholder="General commentâ€¦"></textarea>
       </div>
     </div>
     <div class="grade-footer">
       <button class="btn-draft" onclick="saveDraft()">Save draft</button>
-      <button class="btn-finish" id="btnFinish" onclick="finishMarking()" disabled>✓ Finish Marking</button>
-      <a class="btn-send" id="btnSend" href="/student-directory" style="display:none;text-decoration:none;text-align:center">Go to Student Directory →</a>
+      <button class="btn-finish" id="btnFinish" onclick="finishMarking()" disabled>âœ“ Finish Marking</button>
+      <a class="btn-send" id="btnSend" href="/student-directory" style="display:none;text-decoration:none;text-align:center">Go to Student Directory â†’</a>
     </div>
   </div>
 </div>
@@ -270,7 +270,10 @@ const STUDENT_NAME = "{{ student_name }}";
 localStorage.removeItem('anno_{{ submission_id }}');
 {% endif %}
 </script>
-<script src="/static/JS/stamp_addon.js"></script>
+<script src="/static/JS/stamp_addon.js?v=8"></script>
 <script src="/static/JS/grading_dashboard.js?v=1781111799"></script>
 </body>
 </html>
+
+
+
